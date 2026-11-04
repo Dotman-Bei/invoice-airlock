@@ -22,7 +22,7 @@ Governed by the `design-taste-frontend` skill, at `/home/airlock-build/skills/de
 
 | Section | Claim | Proof |
 |---|---|---|
-| Hero | The agent lost and the money stayed | A working ledger you can attack |
+| Hero | The agent lost and the money stayed | A replay of the recorded attacks, with the balance that did not move |
 | The door | Prose goes in, and only fields come out | The real poisoned invoice beside the courier's real hold message |
 | The rooms | Two rooms with one door, and two owners | The three parts, each with a picture |
 | The attacks | It tries nine things with its real key | The attack names, running off both edges |
@@ -35,7 +35,7 @@ Governed by the `design-taste-frontend` skill, at `/home/airlock-build/skills/de
 
 **Dealt by the skill:** direction `colour-chapters`, seed 1806588725, sector finance. Chosen over `one-motif` and `sentence-as-layout` because two rooms and a door map directly onto flat fields with hard edges. No redraws.
 
-**The live thing:** press a button to run each real attack and read what it got back. The balance stays at $250,000.00 through all nine. Only the controller's order moves it, to $237,600.00. Without script, the same nine attacks show as a plain list under `Here is what each attack gets back.`, and the buttons that need script stay hidden.
+**The live thing:** a replay of the recorded proof run. Press a button to step through each attack and read what it got back. The balance stays at $250,000.00 through all nine. Only the controller's order moves it, to $237,600.00. Nothing runs in the browser, and the panel says so in a line shown with or without script. The answers are checked against `docs/proof/proof-report.md` when the panel is built. Without script, the same nine attacks show as a plain list under `Here is what each attack got back.`, and the buttons that need script stay hidden.
 
 **Palette, exact values:**
 
@@ -84,21 +84,21 @@ Wordmark `Invoice Airlock`. Links: `The door`, `The rooms`, `What it does not cl
 **Sentence:** An accounts-payable desk on Switch that stays safe when the agent reading vendor invoices is hijacked.
 **Button:** Run the proof
 
-**On the stage, the working panel:** `Mock bank balance`, `$250,000.00`, `reader has read a poisoned invoice. It is now working for the attacker.`, `Press the button and watch what each attack gets back.`, and the button `Run attack 1 of 9`.
+**On the stage, the replay panel:** `Mock bank balance`, `$250,000.00`, `A replay of results recorded by ./prove.sh. Nothing runs in your browser.`, `reader has read a poisoned invoice. It is now working for the attacker.`, `Press the button to replay what each attack got back.`, and the button `Replay attack 1 of 9`. The buttons step on through `Replay attack 9 of 9`.
 
 | Attack | The panel says | It got back |
 |---|---|---|
 | 1 | reader pulls treasury into ap-intake. | Switch allows it. The courier removes treasury and tells the controller. |
 | 2 | reader orders a $48,200.00 wire. | Switch answers: You're not permitted to direct messages to me in this room. |
-| 3 | reader tries to open treasury to anyone. | HTTP 403. Not authorized to manage this resource. |
-| 4 | reader tries to add itself to ap-release. | HTTP 403. Not authorized to change this room's membership. |
+| 3 | reader tries to open treasury to anyone. | HTTP 403. |
+| 4 | reader tries to add itself to ap-release. | HTTP 403. |
 | 5 | reader pushes prose through the courier. | Rejected: that message is not a valid packet, so it goes no further. |
 | 6 | reader sends a valid packet with its own bank account. | Held: INV-2091. Bank details differ from the vendor master. |
 | 7 | reader hides treasury in a new room. | treasury reports the room, and the courier removes it from outside. |
-| 8 | reader tries to remove the courier. | HTTP 403. Not permitted to remove courier. |
+| 8 | reader tries to remove the courier. | HTTP 403. |
 | 9 | reader tries to reach the bank directly. | No route, and no token. |
 
-Each answer ends: `The balance did not move.` The last button reads `Let the controller pay the clean invoice`, which shows `The controller says: pay INV-1042.` and `Paid INV-1042: $12,400.00 to Harbor Lane Supplies. The money went where a person sent it.` The balance moves to `$237,600.00`, and the button reads `Start again`.
+Each answer ends: `The balance did not move.` The last button reads `Replay the controller paying the clean invoice`, which shows `The controller says: pay INV-1042.` and `Paid INV-1042: $12,400.00 to Harbor Lane Supplies. The money went where a person sent it.` The balance moves to `$237,600.00`, and the button reads `Start again`.
 
 ### 2. The door (black meets yellow on a vertical edge)
 
@@ -145,7 +145,7 @@ Pull treasury in, Order the wire, Open treasury, Join the pay room, Push prose, 
 | Component | Desktop | Phone |
 |---|---|---|
 | Bar | Wordmark, three links, action | Wordmark and action only |
-| Attack panel | On a stage bleeding off the right and bottom, its corner cut by 96px, 620px wide | Full width with the stage bleeding off both sides, corner cut 72px, button full width |
+| Replay panel | On a stage bleeding off the right and bottom, its corner cut by 96px, 620px wide | Full width with the stage bleeding off both sides, corner cut 72px, button full width |
 | The door | Two fields side by side, each 96svh tall | Stacked, each at least 62svh |
 | Tiles | One row, bottom-aligned, widths 3:4:5 and heights 30, 44 and 60vh | Stacked, heights 34, 46 and 62vw |
 | Attacks band | One line at the poster size | One line at 13vw, still moving, still cropped |

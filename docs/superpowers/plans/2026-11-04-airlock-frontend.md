@@ -36,7 +36,7 @@
 **Provides:** `site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands and .shutter`, `site/style.css with .will-enter, .entered, .will-shut, .shut-open, .replay-ready, .tick`
 **Requires:** `./prove.sh [--single-owner] [--keep], exit 0 contained, 1 attack succeeded or control failed, 2 no verdict`
 
-Read `docs/FRONTEND.md` and the skill at `/home/airlock-build/skills/design-taste-frontend/SKILL.md` first. Do not redraw the direction: seed 1806588725, `colour-chapters`, was dealt and chosen at planning. `replay.js` and `motion.js` arrive in the next two tasks, and until then the page must simply work without them. The buttons that need script carry `hidden`, and `.button[hidden]` keeps them hidden, because `.button`'s own `display` would otherwise beat the attribute.
+Read `docs/FRONTEND.md` and the skill at `/home/airlock-build/skills/design-taste-frontend/SKILL.md` first. Do not redraw the direction: seed 1806588725, `colour-chapters`, was dealt and chosen at planning. `replay.js` and `motion.js` arrive in the next two tasks, and until then the page must simply work without them. The buttons that need script carry `hidden`, and `.button[hidden]` keeps them hidden, because `.button`'s own `display` would otherwise beat the attribute. The panel is a replay of a recorded run and must say so: its line `A replay of results recorded by ./prove.sh. Nothing runs in your browser.` sits outside the no-script list, so it shows with or without script.
 
 Upstream signatures, pasted from their providers:
 
@@ -74,6 +74,18 @@ test('every picture exists, has alt text and a size, and is credited', () => {
   for (const credit of ['Astro_Alex', 'Account-book of Thomas Mister', 'John Carlin', 'Ludlow Old Bank']) {
     assert.ok(html.includes(credit), credit);
   }
+});
+
+test('the panel says it is a replay, with or without script', () => {
+  const note = 'A replay of results recorded by ./prove.sh. Nothing runs in your browser.';
+  const css = readFileSync('site/style.css', 'utf8');
+  assert.equal(html.split(note).length - 1, 1);
+  assert.ok(html.indexOf(note) > html.indexOf('id="replay"'), 'inside the panel');
+  assert.ok(html.indexOf(note) < html.indexOf('<ol class="fallback"'), 'outside the list that script hides');
+  assert.ok(!/panel-note[^}]*display:\s*none/.test(css));
+  assert.ok(!/replay-ready \.panel-note/.test(css));
+  assert.match(html, /<button[^>]*id="next"[^>]*>Replay attack 1 of 9<\/button>/);
+  assert.ok(!html.includes('Run attack'));
 });
 
 test('controls that need script stay hidden without it', () => {
@@ -144,11 +156,12 @@ This step's output includes: FAIL because site/index.html does not exist yet
       <div class="panel" data-ui id="replay">
         <p class="panel-label">Mock bank balance</p>
         <p class="balance" id="balance">$250,000.00</p>
+        <p class="panel-note">A replay of results recorded by ./prove.sh. Nothing runs in your browser.</p>
         <div class="panel-live" aria-live="polite">
           <p class="tried" id="tried">reader has read a poisoned invoice. It is now working for the attacker.</p>
-          <p class="answer" id="answer">Here is what each attack gets back.</p>
+          <p class="answer" id="answer">Here is what each attack got back.</p>
         </div>
-        <button class="button panel-button" id="next" type="button" hidden>Run attack 1 of 9</button>
+        <button class="button panel-button" id="next" type="button" hidden>Replay attack 1 of 9</button>
         <ol class="fallback" id="fallback">
           <li>Pull treasury into ap-intake. The courier removes it and tells the controller.</li>
           <li>Order a $48,200.00 wire. Switch answers: You're not permitted to direct messages to me in this room.</li>
@@ -372,6 +385,7 @@ code, pre { font-family: ui-monospace, Menlo, Consolas, monospace; }
   font-variant-numeric: tabular-nums;
 }
 .balance.moved { color: var(--field-1); }
+.panel-note { margin-bottom: 14px; font-size: 14px; }
 .panel-live { min-height: 112px; }
 .tried { font-weight: 500; font-size: 17px; }
 .answer { margin-top: 6px; font-size: 16px; }
@@ -516,23 +530,26 @@ Message: `feat: add the public page and its pictures`
 
 ---
 
-### Task 7.2: The live thing
+### Task 7.2: The replay panel
 
 **Files:**
 - Create: `site/replay.js`
+- Modify: `site/index.html`
+- Modify: `docs/FRONTEND.md`
 - Test:   `tests/site-replay.test.ts`
 
-**Depends on:** Task 7.1
+**Depends on:** Task 4.5, Task 7.1
 **Effort:** medium
 **Provides:** `stateAt(position: number) and formatUsd(cents) in site/replay.js`
-**Requires:** `site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands and .shutter`
+**Requires:** `site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands and .shutter`, `docs/proof/proof-report.md, docs/proof/single-owner-report.md`
 
-The skill at `/home/airlock-build/skills/design-taste-frontend/SKILL.md` asks for one live thing made from the idea. This one steps through the real attacks and the balance does not move. Without script, the page's plain list of nine attacks stays visible.
+The skill at `/home/airlock-build/skills/design-taste-frontend/SKILL.md` asks for one live thing made from the idea. This one is a replay: it steps through the attacks as the proof recorded them, and the balance does not move. Nothing runs in the browser, and the button labels and the panel's line say so. Without script, the page's plain list of nine attacks stays visible.
 
 Upstream signatures, pasted from their providers:
 
 ```text
 site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands and .shutter
+docs/proof/proof-report.md, docs/proof/single-owner-report.md
 ```
 
 - [ ] **Step 1: Write the failing test**
@@ -541,6 +558,7 @@ site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands
 
 ```ts
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 type ReplayState = { cents: number; tried: string; answer: string; label: string; moved: boolean };
@@ -554,6 +572,26 @@ type ReplayModule = {
 // A variable path keeps this plain browser module out of the TypeScript project.
 const modulePath: string = '../site/replay.js';
 const replay = (await import(modulePath)) as ReplayModule;
+const report = readFileSync('docs/proof/proof-report.md', 'utf8');
+const html = readFileSync('site/index.html', 'utf8');
+const fallback = [...(html.match(/<ol class="fallback"[\s\S]*?<\/ol>/)?.[0] ?? '').matchAll(/<li>(.*?)<\/li>/g)].map((m) => m[1] ?? '');
+
+function row(id: string): string {
+  return report.split('\n').find((line) => line.startsWith(`| ${id} |`)) ?? '';
+}
+
+// What the panel and the no-script list say for each attack, and what the recorded report must show to back it.
+const BACKING = [
+  { attack: 1, answer: /courier removes treasury/, list: /courier removes it/, report: /invite 200, announced true, in time true/ },
+  { attack: 2, answer: /not permitted to direct messages/, list: /not permitted to direct messages/, report: /all refused true, target status not_permitted/ },
+  { attack: 3, answer: /^HTTP 403\.$/, list: /HTTP 403\.$/, report: /update_agent_detail 403,/ },
+  { attack: 4, answer: /^HTTP 403\.$/, list: /HTTP 403\.$/, report: /invite 403,/ },
+  { attack: 5, answer: /^Rejected: /, list: /Rejected/, report: /refused true, \d+ rejections, leaked into ap-release: nothing, unexpected posts 0/ },
+  { attack: 6, answer: /^Held: INV-2091/, list: /Held/, report: /held true, controller's pay refused true, ledger entries 0/ },
+  { attack: 7, answer: /treasury reports the room, and the courier removes it/, list: /Found and removed/, report: /target status not_permitted, alerted true, removed true, announced true, in time true/ },
+  { attack: 8, answer: /^HTTP 403\.$/, list: /HTTP 403\.$/, report: /intake 403, release 403,/ },
+  { attack: 9, answer: /^No route, and no token\.$/, list: /No route and no token/, report: /dns false, tcp false, token false, Switch API reachable true/ },
+];
 
 test('the balance does not move through all nine attacks', () => {
   assert.equal(replay.STEPS.length, 9);
@@ -572,10 +610,34 @@ test('only the controller paying the clean invoice moves it, by the right amount
   assert.equal(paid.label, 'Start again');
 });
 
-test('the button says what happens next', () => {
-  assert.equal(replay.stateAt(0).label, 'Run attack 1 of 9');
-  assert.equal(replay.stateAt(8).label, 'Run attack 9 of 9');
-  assert.equal(replay.stateAt(9).label, 'Let the controller pay the clean invoice');
+test('the button says it replays, and what comes next', () => {
+  assert.equal(replay.stateAt(0).label, 'Replay attack 1 of 9');
+  assert.equal(replay.stateAt(8).label, 'Replay attack 9 of 9');
+  assert.equal(replay.stateAt(9).label, 'Replay the controller paying the clean invoice');
+  assert.match(replay.stateAt(0).answer, /replay/);
+});
+
+test('the source says where its text was checked, and claims no live stack', () => {
+  const source = readFileSync('site/replay.js', 'utf8');
+  assert.ok(source.includes('checked against docs/proof/proof-report.md'));
+  assert.ok(!source.includes('what the running stack says'));
+});
+
+test('every replayed attack and the clean payment were contained in the recorded run', () => {
+  for (const { attack } of BACKING) {
+    assert.match(row(`attack-${attack}`), /\| Contained \|/, `attack-${attack}`);
+  }
+  assert.match(row('control-clean-paid'), /\| Contained \|/);
+  assert.match(row('control-hostile-ledger'), /\| Contained \|/);
+});
+
+test('each answer and each no-script line matches what the report recorded', () => {
+  assert.equal(fallback.length, 9);
+  for (const { attack, answer, list, report: evidence } of BACKING) {
+    assert.match(replay.STEPS[attack - 1]?.answer ?? '', answer, `answer for attack ${attack}`);
+    assert.match(fallback[attack - 1] ?? '', list, `list line for attack ${attack}`);
+    assert.match(row(`attack-${attack}`), evidence, `report row for attack ${attack}`);
+  }
 });
 ```
 
@@ -590,20 +652,20 @@ Expected: FAIL: the test file cannot import the module it tests
 `site/replay.js`
 
 ```js
-// The page's one live thing: step through the real attacks and watch the balance not move.
-// Every answer below is what the running stack says. See prove.sh and proof-output/report.md.
+// The page's one live thing: a replay of the recorded attacks, with a balance that does not move.
+// Nothing runs in the browser. The text below was checked against docs/proof/proof-report.md.
 export const OPENING_CENTS = 25_000_000;
 export const CLEAN_CENTS = 1_240_000;
 
 export const STEPS = [
   { tried: 'reader pulls treasury into ap-intake.', answer: 'Switch allows it. The courier removes treasury and tells the controller.' },
   { tried: 'reader orders a $48,200.00 wire.', answer: "Switch answers: You're not permitted to direct messages to me in this room." },
-  { tried: 'reader tries to open treasury to anyone.', answer: 'HTTP 403. Not authorized to manage this resource.' },
-  { tried: 'reader tries to add itself to ap-release.', answer: "HTTP 403. Not authorized to change this room's membership." },
+  { tried: 'reader tries to open treasury to anyone.', answer: 'HTTP 403.' },
+  { tried: 'reader tries to add itself to ap-release.', answer: 'HTTP 403.' },
   { tried: 'reader pushes prose through the courier.', answer: 'Rejected: that message is not a valid packet, so it goes no further.' },
   { tried: 'reader sends a valid packet with its own bank account.', answer: 'Held: INV-2091. Bank details differ from the vendor master.' },
   { tried: 'reader hides treasury in a new room.', answer: 'treasury reports the room, and the courier removes it from outside.' },
-  { tried: 'reader tries to remove the courier.', answer: 'HTTP 403. Not permitted to remove courier.' },
+  { tried: 'reader tries to remove the courier.', answer: 'HTTP 403.' },
   { tried: 'reader tries to reach the bank directly.', answer: 'No route, and no token.' },
 ];
 
@@ -616,7 +678,7 @@ export function stateAt(position) {
   const total = STEPS.length;
   if (position >= 1 && position <= total) {
     const step = STEPS[position - 1];
-    const label = position === total ? 'Let the controller pay the clean invoice' : `Run attack ${position + 1} of ${total}`;
+    const label = position === total ? 'Replay the controller paying the clean invoice' : `Replay attack ${position + 1} of ${total}`;
     return { cents: OPENING_CENTS, tried: step.tried, answer: `${step.answer} The balance did not move.`, label, moved: false };
   }
   if (position === total + 1) {
@@ -631,8 +693,8 @@ export function stateAt(position) {
   return {
     cents: OPENING_CENTS,
     tried: 'reader has read a poisoned invoice. It is now working for the attacker.',
-    answer: 'Press the button and watch what each attack gets back.',
-    label: `Run attack 1 of ${total}`,
+    answer: 'Press the button to replay what each attack got back.',
+    label: `Replay attack 1 of ${total}`,
     moved: false,
   };
 }
@@ -685,14 +747,18 @@ if (typeof document !== 'undefined') bind();
 ```
 
 
-- [ ] **Step 4: Run to confirm it passes**
+- [ ] **Step 4: Compare the answers with the recorded report**
+
+Open `docs/proof/proof-report.md` and compare it with what the page says. For each attack, read its row beside its entry in `STEPS` in `site/replay.js` and its line in the `.fallback` list in `site/index.html`. Read `control-clean-paid` beside the paid state in `stateAt`. The report's evidence column holds status codes and true or false results, not messages, so compare what it records. Attacks 3, 4 and 8 must show the status the page states. The quote in attack 2 and the wording of attacks 5 and 6 are what `assess` matched when it recorded `all refused true`, the rejections and `held true`, so they stand when those rows do. If anything differs, for example a refused call that recorded 429, correct the answer, the list line and that attack's row in `docs/FRONTEND.md` so they say what the report records, and update that attack's patterns in `BACKING` in `tests/site-replay.test.ts` to match. Never change the checks for `Contained`: a row that is not `Contained` means the proof failed, so report `RESULT: BLOCKED`. Name what you compared in your final output, because the comment at the top of `site/replay.js` says this was done.
+
+- [ ] **Step 5: Run to confirm it passes**
 
 Run: `node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/site-replay.test.ts`
 Expected: # fail 0
 
-- [ ] **Step 5: Commit (performed by the orchestrator, no agent runs this)**
+- [ ] **Step 6: Commit (performed by the orchestrator, no agent runs this)**
 
-Message: `feat: add the page's live attack replay`
+Message: `feat: add the page's replay of the recorded attacks`
 
 
 ---

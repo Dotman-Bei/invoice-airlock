@@ -1411,9 +1411,10 @@
     {
       "id": "frontend:7.2",
       "subsystem": "frontend",
-      "title": "The live thing",
+      "title": "The replay panel",
       "plan": "docs/superpowers/plans/2026-11-04-airlock-frontend.md",
       "depends_on": [
+        "proof:4.5",
         "frontend:7.1"
       ],
       "effort": "medium",
@@ -1421,7 +1422,10 @@
         "create": [
           "site/replay.js"
         ],
-        "modify": [],
+        "modify": [
+          "site/index.html",
+          "docs/FRONTEND.md"
+        ],
         "test": [
           "tests/site-replay.test.ts"
         ]
@@ -1430,13 +1434,14 @@
         "stateAt(position: number) and formatUsd(cents) in site/replay.js"
       ],
       "requires": [
-        "site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands and .shutter"
+        "site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands and .shutter",
+        "docs/proof/proof-report.md, docs/proof/single-owner-report.md"
       ],
       "gate": {
         "run": "node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/site-replay.test.ts",
         "expect": "# fail 0"
       },
-      "commit": "feat: add the page's live attack replay",
+      "commit": "feat: add the page's replay of the recorded attacks",
       "human_gate": false,
       "allow_empty": false,
       "status": "pending"
