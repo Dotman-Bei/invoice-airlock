@@ -414,7 +414,7 @@ cmd_verify_inner() {
   if as_build timeout 3 bash -c "exec 3<>/dev/tcp/169.254.169.254/80" 2>/dev/null; then bad "reached the metadata address"; else ok "the metadata address is refused"; fi
   if as_build getent hosts github.com >/dev/null; then ok "DNS works"; else bad "DNS does not work"; fi
   local url
-  for url in https://github.com https://ghcr.io/v2/ https://registry.npmjs.org/ https://api.anthropic.com/; do
+  for url in https://github.com https://ghcr.io/v2/ https://registry-1.docker.io/v2/ https://registry.npmjs.org/ https://raw.githubusercontent.com/ https://deb.debian.org/ https://api.anthropic.com/; do
     if as_build curl -sS -o /dev/null --max-time 15 "$url"; then ok "outbound to $url"; else bad "no outbound to $url"; fi
   done
   as_build timeout 4 python3 -m http.server 23999 --bind 127.0.0.1 --directory "$HOME_DIR/.config" >/dev/null 2>&1 &
@@ -454,7 +454,7 @@ cmd_smoke() {
     echo "Only ${available_mib} MiB of memory is available. The stack needs about 600 MiB and this host has other services, so not starting." >&2
     exit 1
   fi
-  say "Starting the pinned Switch stack as $BUILD_USER. The first run pulls about 2 GB of images"
+  say "Starting the pinned Switch stack as $BUILD_USER. The first run pulls its images, so give it a few minutes"
   as_build env SWITCH_TAG="$SWITCH_TAG" SWITCH_VERSION="$SWITCH_VERSION" bash -s <<'EOF'
 set -euo pipefail
 dir="$HOME/airlock-smoke"

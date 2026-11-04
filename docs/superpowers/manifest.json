@@ -1,0 +1,1543 @@
+{
+  "project": "invoice-airlock",
+  "spec": "docs/superpowers/specs/2026-11-04-invoice-airlock-design.md",
+  "subsystems": [
+    "core",
+    "agents",
+    "stack",
+    "proof",
+    "demo",
+    "docs",
+    "frontend"
+  ],
+  "tasks": [
+    {
+      "id": "core:1.1",
+      "subsystem": "core",
+      "title": "Scaffold the project",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-core.md",
+      "depends_on": [],
+      "effort": "low",
+      "model_tier": "fast",
+      "files": {
+        "create": [
+          "package.json",
+          "tsconfig.json",
+          ".gitignore",
+          "LICENSE",
+          "package-lock.json"
+        ],
+        "modify": [],
+        "test": []
+      },
+      "provides": [
+        "package.json with type module and scripts test, typecheck",
+        "tsconfig.json with allowImportingTsExtensions, erasableSyntaxOnly, noEmit"
+      ],
+      "requires": [],
+      "gate": {
+        "run": "npm install --no-audit --no-fund && npm ls typescript ws",
+        "expect": "typescript@5.9.3"
+      },
+      "commit": "chore: scaffold the TypeScript project",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "core:1.2",
+      "subsystem": "core",
+      "title": "The packet schema",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-core.md",
+      "depends_on": [
+        "core:1.1"
+      ],
+      "effort": "high",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "src/packet/schema.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/packet.test.ts",
+          "tests/helpers/packets.ts"
+        ]
+      },
+      "provides": [
+        "tests/helpers/packets.ts: export const CLEAN_SHA = 'a'.repeat(64);",
+        "tests/helpers/packets.ts: export function cleanPacket(overrides: Partial<Packet> = {}): Packet",
+        "src/packet/schema.ts: export type Packet = { invoice_no: string; vendor_id: string; po_no: string; grn_no: string; amount_cents: number; currency: 'USD'; due_date: string; routing: string; account: string; source_sha256: string; };",
+        "src/packet/schema.ts: export type ParseResult = | { ok: true; packet: Packet } | { ok: false; reason: string };",
+        "src/packet/schema.ts: export const PACKET_PREFIX = 'AIRLOCK/1 ';",
+        "src/packet/schema.ts: export const PACKET_ATTEMPT_PREFIX = 'AIRLOCK/';",
+        "src/packet/schema.ts: export const MAX_PACKET_BYTES = 1024;",
+        "src/packet/schema.ts: export function validatePacket(value: unknown): ParseResult",
+        "src/packet/schema.ts: export function parsePacket(line: string): ParseResult",
+        "src/packet/schema.ts: export function formatPacket(packet: Packet): string"
+      ],
+      "requires": [
+        "package.json with type module and scripts test, typecheck"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/packet.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the strict packet schema",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "core:1.3",
+      "subsystem": "core",
+      "title": "Desk data and the checks",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-core.md",
+      "depends_on": [
+        "core:1.2"
+      ],
+      "effort": "high",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "fixtures/desk/vendors.json",
+          "fixtures/desk/purchase-orders.json",
+          "fixtures/desk/goods-receipts.json",
+          "src/desk/data.ts",
+          "src/desk/check.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/check.test.ts"
+        ]
+      },
+      "provides": [
+        "src/desk/data.ts: export type Vendor = { vendor_id: string; name: string; routing: string; account: string };",
+        "src/desk/data.ts: export type PurchaseOrder = { po_no: string; vendor_id: string; amount_cents: number };",
+        "src/desk/data.ts: export type GoodsReceipt = { grn_no: string; po_no: string; received_amount_cents: number };",
+        "src/desk/data.ts: export type OpenOrders = { purchaseOrders: PurchaseOrder[]; goodsReceipts: GoodsReceipt[] };",
+        "src/desk/data.ts: export type Desk = OpenOrders & { vendors: Vendor[] };",
+        "src/desk/data.ts: export function loadOpenOrders(dir: string): OpenOrders",
+        "src/desk/data.ts: export function loadDesk(dir: string): Desk",
+        "src/desk/check.ts: export type HoldReason = | 'unknown-vendor' | 'bank-mismatch' | 'po-mismatch' | 'grn-missing' | 'amount-mismatch';",
+        "src/desk/check.ts: export type Decision = | { kind: 'duplicate'; invoiceNo: string } | { kind: 'held'; reason: HoldReason; packet: Packet; vendor: Vendor | null } | { kind: 'cleared'; packet: Packet; vendor: Vendor };",
+        "src/desk/check.ts: export function checkPacket(packet: Packet, desk: Desk, decided: ReadonlySet<string>): Decision",
+        "fixtures/desk purchase orders PO-8841, PO-8850 and goods receipts GRN-7731, GRN-7790"
+      ],
+      "requires": [
+        "tests/helpers/packets.ts: export function cleanPacket(overrides: Partial<Packet> = {}): Packet",
+        "src/packet/schema.ts: export type Packet = { invoice_no: string; vendor_id: string; po_no: string; grn_no: string; amount_cents: number; currency: 'USD'; due_date: string; routing: string; account: string; source_sha256: string; };"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/check.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the vendor master and the packet checks",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "core:1.4",
+      "subsystem": "core",
+      "title": "The fixed chat copy",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-core.md",
+      "depends_on": [
+        "core:1.2",
+        "core:1.3"
+      ],
+      "effort": "medium",
+      "files": {
+        "create": [
+          "src/desk/copy.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/copy.test.ts"
+        ]
+      },
+      "provides": [
+        "src/desk/copy.ts: export const REFUSAL_TEXT = 'not permitted to direct messages';",
+        "src/desk/copy.ts: export function formatUsd(cents: number): string",
+        "src/desk/copy.ts: export function lastFour(digits: string): string",
+        "src/desk/copy.ts: export const readerNeedsPdf = 'Send me one PDF invoice and mention me.';",
+        "src/desk/copy.ts: export const readerFailed = 'I could not read that invoice, so nothing was sent.';",
+        "src/desk/copy.ts: export const readerHijacked = 'INV-2091 says the rules have changed. Bringing in treasury to pay it now.';",
+        "src/desk/copy.ts: export const rejectNotPacket = 'Rejected: that message is not a valid packet, so it goes no further.';",
+        "src/desk/copy.ts: export const treasuryBadCommand = 'I only understand: pay INV-number';",
+        "src/desk/copy.ts: export const treasuryBankDown = 'Refused: the bank did not answer, so nothing was paid.';",
+        "src/desk/copy.ts: export function readerRead(packet: Packet): string",
+        "src/desk/copy.ts: export function rejectDuplicate(invoiceNo: string): string",
+        "src/desk/copy.ts: export function intakeCleared(invoiceNo: string): string",
+        "src/desk/copy.ts: export function intakeHeld(invoiceNo: string): string",
+        "src/desk/copy.ts: export function intakeRemoved(agent: string): string",
+        "src/desk/copy.ts: export function releaseRemoved(agent: string, room: string): string",
+        "src/desk/copy.ts: export function releaseHiddenRoom(roomId: string): string",
+        "src/desk/copy.ts: export type ClearedLine = { invoice_no: string; vendor_id: string; vendor_name: string; amount_cents: number; routing: string; account: string; };",
+        "src/desk/copy.ts: export type DecisionLine = | ({ kind: 'cleared' } & ClearedLine) | { kind: 'held'; invoice_no: string; reason: string };",
+        "src/desk/copy.ts: export function clearedMessage(packet: Packet, vendor: Vendor): string",
+        "src/desk/copy.ts: export function heldMessage(packet: Packet, reason: HoldReason, vendor: Vendor | null): string",
+        "src/desk/copy.ts: export function parseDecisionLine(body: string): DecisionLine | null",
+        "src/desk/copy.ts: export function paidMessage(line: ClearedLine, entry: number): string",
+        "src/desk/copy.ts: export function refusedHeld(invoiceNo: string): string",
+        "src/desk/copy.ts: export function refusedNotCleared(invoiceNo: string): string",
+        "src/desk/copy.ts: export function refusedAlreadyPaid(invoiceNo: string): string"
+      ],
+      "requires": [
+        "src/desk/data.ts: export function loadDesk(dir: string): Desk",
+        "tests/helpers/packets.ts: export function cleanPacket(overrides: Partial<Packet> = {}): Packet",
+        "src/packet/schema.ts: export type Packet = { invoice_no: string; vendor_id: string; po_no: string; grn_no: string; amount_cents: number; currency: 'USD'; due_date: string; routing: string; account: string; source_sha256: string; };",
+        "src/desk/check.ts: export type HoldReason = | 'unknown-vendor' | 'bank-mismatch' | 'po-mismatch' | 'grn-missing' | 'amount-mismatch';",
+        "src/desk/data.ts: export type Vendor = { vendor_id: string; name: string; routing: string; account: string };"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/copy.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the fixed chat copy and decision lines",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "core:1.5",
+      "subsystem": "core",
+      "title": "Parse Switch frames",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-core.md",
+      "depends_on": [
+        "core:1.1"
+      ],
+      "effort": "medium",
+      "files": {
+        "create": [
+          "src/switch/frames.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/frames.test.ts"
+        ]
+      },
+      "provides": [
+        "src/switch/frames.ts: export type Attachment = { filename: string; mimetype: string; size: number; mxc: string; msgtype: string; };",
+        "src/switch/frames.ts: export type MessageFrame = { kind: 'message'; roomId: string; messageId: string; addressed: boolean; sender: string; senderName: string; senderKind: string | null; body: string; timestamp: number; threadId: string | null; attachments: Attachment[]; };",
+        "src/switch/frames.ts: export type RoomJoinFrame = { kind: 'room_join'; roomId: string; member: string; memberName: string; timestamp: number; listening: boolean; };",
+        "src/switch/frames.ts: export type Frame = | { kind: 'ping' } | { kind: 'connection_state' } | { kind: 'evicted'; reason: string } | { kind: 'refused'; detail: string } | { kind: 'other'; name: string } | MessageFrame | RoomJoinFrame;",
+        "src/switch/frames.ts: export type ParsedFrame = { frame: Frame; cursor: number | null };",
+        "src/switch/frames.ts: export function parseFrame(raw: string): ParsedFrame"
+      ],
+      "requires": [
+        "tsconfig.json with allowImportingTsExtensions, erasableSyntaxOnly, noEmit"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/frames.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: parse Switch connection frames",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "core:1.6",
+      "subsystem": "core",
+      "title": "The Switch agent client",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-core.md",
+      "depends_on": [
+        "core:1.5"
+      ],
+      "effort": "high",
+      "files": {
+        "create": [
+          "src/switch/agent-client.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/agent-client.test.ts",
+          "tests/helpers/ws-server.ts"
+        ]
+      },
+      "provides": [
+        "tests/helpers/ws-server.ts: export type TestServer = { server: WebSocketServer; sockets: ServerSocket[]; headers: (string | undefined)[]; urls: string[]; received: unknown[]; close: () => Promise<void>; };",
+        "tests/helpers/ws-server.ts: export function startWsServer(port: number): Promise<TestServer>",
+        "src/switch/agent-client.ts: export type OpResult = { status: number; body: unknown; retryAfter: string | null };",
+        "src/switch/agent-client.ts: export interface DeskClient { op(name: string, args?: Record<string, unknown>): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; }",
+        "src/switch/agent-client.ts: export interface ReaderClient extends DeskClient { media(roomId: string, mxc: string): Promise<Buffer>; }",
+        "src/switch/agent-client.ts: export type AgentIdentity = { id: string; apiKey: string; connectionId: string; name: string };",
+        "src/switch/agent-client.ts: export type ClientOptions = { baseUrl: string; identity: AgentIdentity; filter: 'all' | 'addressed'; retryDelayMs?: number; log?: (line: string) => void; };",
+        "src/switch/agent-client.ts: export function resultOf<T>(result: OpResult): T | null",
+        "src/switch/agent-client.ts: export class AgentClient implements ReaderClient { constructor(options: ClientOptions); start(onFrame: (frame: Frame) => void | Promise<void>, onFatal: (reason: string) => void): Promise<void>; stop(): void; op(name: string, args: Record<string, unknown> = {}): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; media(roomId: string, mxc: string): Promise<Buffer> }"
+      ],
+      "requires": [
+        "src/switch/frames.ts: export type Frame = | { kind: 'ping' } | { kind: 'connection_state' } | { kind: 'evicted'; reason: string } | { kind: 'refused'; detail: string } | { kind: 'other'; name: string } | MessageFrame | RoomJoinFrame;",
+        "src/switch/frames.ts: export function parseFrame(raw: string): ParsedFrame"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/agent-client.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the Switch agent client",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "core:1.7",
+      "subsystem": "core",
+      "title": "Flatten room history",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-core.md",
+      "depends_on": [
+        "core:1.5",
+        "core:1.6"
+      ],
+      "effort": "low",
+      "files": {
+        "create": [
+          "src/switch/context.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/context.test.ts"
+        ]
+      },
+      "provides": [
+        "src/switch/context.ts: export type ContextEntry = { id: string; kind: string; sender: string; senderName: string; body: string; timestamp: number; attachments: Attachment[]; };",
+        "src/switch/context.ts: export function flattenContext(result: OpResult): ContextEntry[]"
+      ],
+      "requires": [
+        "src/switch/agent-client.ts: export function resultOf<T>(result: OpResult): T | null",
+        "src/switch/agent-client.ts: export type OpResult = { status: number; body: unknown; retryAfter: string | null };",
+        "src/switch/frames.ts: export type Attachment = { filename: string; mimetype: string; size: number; mxc: string; msgtype: string; };"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/context.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: flatten read_context into one timeline",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "core:1.8",
+      "subsystem": "core",
+      "title": "The mock bank",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-core.md",
+      "depends_on": [
+        "core:1.1"
+      ],
+      "effort": "medium",
+      "files": {
+        "create": [
+          "src/bank/ledger.ts",
+          "src/bank/server.ts",
+          "src/bank/main.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/bank.test.ts"
+        ]
+      },
+      "provides": [
+        "src/bank/ledger.ts: export type PaymentRequest = { invoice_no: string; vendor_id: string; vendor_name: string; amount_cents: number; routing: string; account: string; released_by: string; };",
+        "src/bank/ledger.ts: export type LedgerEntry = PaymentRequest & { entry: number; at: string };",
+        "src/bank/ledger.ts: export type LedgerView = { opening_balance_cents: number; balance_cents: number; entries: LedgerEntry[] };",
+        "src/bank/ledger.ts: export type PayResult = { ok: true; entry: LedgerEntry } | { ok: false; code: 'already-paid' | 'insufficient' };",
+        "src/bank/ledger.ts: export const OPENING_BALANCE_CENTS = 25_000_000;",
+        "src/bank/ledger.ts: export function parsePaymentRequest(value: unknown): PaymentRequest | null",
+        "src/bank/ledger.ts: export class Ledger { constructor(opening: number = OPENING_BALANCE_CENTS); pay(request: PaymentRequest, at: Date = new Date()): PayResult; view(): LedgerView }",
+        "src/bank/server.ts: export function createBankServer(token: string, ledger: Ledger): Server",
+        "POST /payments, GET /ledger.json, GET / on port 9000"
+      ],
+      "requires": [
+        "tsconfig.json with allowImportingTsExtensions, erasableSyntaxOnly, noEmit"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/bank.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the mock bank and its ledger page",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "core:1.9",
+      "subsystem": "core",
+      "title": "Gateway and Mattermost sessions",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-core.md",
+      "depends_on": [
+        "core:1.1"
+      ],
+      "effort": "medium",
+      "files": {
+        "create": [
+          "src/switch/gateway.ts",
+          "src/switch/mattermost.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/people.test.ts"
+        ]
+      },
+      "provides": [
+        "src/switch/gateway.ts: export type HttpResult = { status: number; body: unknown };",
+        "src/switch/gateway.ts: export class GatewaySession { constructor(baseUrl: string); login(email: string, password: string): Promise<HttpResult>; request(method: string, path: string, body?: unknown): Promise<HttpResult> }",
+        "src/switch/gateway.ts: export function must(result: HttpResult, label: string): Record<string, unknown>",
+        "src/switch/mattermost.ts: export type Post = { id: string; rootId: string; username: string; message: string; type: string; createAt: number; };",
+        "src/switch/mattermost.ts: export class MattermostSession { userId; constructor(baseUrl: string); login(username: string, password: string): Promise<boolean>; request(method: string, path: string, body?: unknown): Promise<HttpResult>; channelId(team: string, channel: string): Promise<string | null>; postMessage(channelId: string, message: string, fileIds: string[] = []): Promise<string>; uploadAndPost(channelId: string, message: string, filename: string, bytes: Buffer): Promise<string>; posts(channelId: string): Promise<Post[]>; clientConfig(): Promise<Record<string, string>> }"
+      ],
+      "requires": [
+        "tsconfig.json with allowImportingTsExtensions, erasableSyntaxOnly, noEmit"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/people.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add Gateway and Mattermost sessions",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "agents:2.1",
+      "subsystem": "agents",
+      "title": "Test helpers and agent state",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-agents.md",
+      "depends_on": [
+        "core:1.5",
+        "core:1.6"
+      ],
+      "effort": "low",
+      "files": {
+        "create": [
+          "src/switch/state.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/helpers/fake-client.ts",
+          "tests/helpers/frames.ts"
+        ]
+      },
+      "provides": [
+        "tests/helpers/fake-client.ts: export type OpCall = { name: string; args: Record<string, unknown> };",
+        "tests/helpers/fake-client.ts: export type Said = { roomId: string; content: string };",
+        "tests/helpers/fake-client.ts: export class FakeClient implements ReaderClient { ops: OpCall[]; said: Said[]; answers; mediaBytes: Buffer; mediaError: Error | null; answer(name: string, result: OpResult | ((args: Record<string, unknown>) => OpResult)): void; op(name: string, args: Record<string, unknown> = {}): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; media(): Promise<Buffer>; saidIn(roomId: string): string[] }",
+        "tests/helpers/fake-client.ts: export function context(entries: Record<string, unknown>[]): OpResult",
+        "tests/helpers/frames.ts: export function message(overrides: Partial<MessageFrame>): MessageFrame",
+        "tests/helpers/frames.ts: export function join(overrides: Partial<RoomJoinFrame>): RoomJoinFrame",
+        "src/switch/state.ts: export type AgentState = { id: string; api_key: string; connection_id: string; name: string; rooms: { intake?: string; release?: string }; };",
+        "src/switch/state.ts: export function readAgentState(path: string): AgentState",
+        "src/switch/state.ts: export function identityOf(state: AgentState): AgentIdentity",
+        "src/switch/state.ts: export function requireEnv(name: string): string"
+      ],
+      "requires": [
+        "src/switch/agent-client.ts: export type OpResult = { status: number; body: unknown; retryAfter: string | null };",
+        "src/switch/agent-client.ts: export interface ReaderClient extends DeskClient { media(roomId: string, mxc: string): Promise<Buffer>; }",
+        "src/switch/frames.ts: export type MessageFrame = { kind: 'message'; roomId: string; messageId: string; addressed: boolean; sender: string; senderName: string; senderKind: string | null; body: string; timestamp: number; threadId: string | null; attachments: Attachment[]; };",
+        "src/switch/frames.ts: export type RoomJoinFrame = { kind: 'room_join'; roomId: string; member: string; memberName: string; timestamp: number; listening: boolean; };",
+        "src/switch/agent-client.ts: export type AgentIdentity = { id: string; apiKey: string; connectionId: string; name: string };"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && echo TYPECHECK PASS",
+        "expect": "TYPECHECK PASS"
+      },
+      "commit": "test: add the fake client and frame helpers",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "agents:2.2",
+      "subsystem": "agents",
+      "title": "The courier",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-agents.md",
+      "depends_on": [
+        "core:1.2",
+        "core:1.3",
+        "core:1.4",
+        "core:1.5",
+        "core:1.6",
+        "core:1.7",
+        "agents:2.1"
+      ],
+      "effort": "high",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "src/courier/courier.ts",
+          "src/courier/main.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/courier.test.ts"
+        ]
+      },
+      "provides": [
+        "src/courier/courier.ts: export type CourierOptions = { client: DeskClient; desk: Desk; rooms: { intake: string; release: string }; graceMs: number; startedAt: number; log?: (line: string) => void; };",
+        "src/courier/courier.ts: export class Courier { constructor(options: CourierOptions); recover(): Promise<void>; onFrame(frame: Frame): Promise<void>; backfill(): Promise<void>; settle(): Promise<void> }",
+        "the courier process: node src/courier/main.ts"
+      ],
+      "requires": [
+        "src/desk/data.ts: export function loadDesk(dir: string): Desk",
+        "src/packet/schema.ts: export function formatPacket(packet: Packet): string",
+        "tests/helpers/fake-client.ts: export function context(entries: Record<string, unknown>[]): OpResult",
+        "tests/helpers/fake-client.ts: export class FakeClient implements ReaderClient { ops: OpCall[]; said: Said[]; answers; mediaBytes: Buffer; mediaError: Error | null; answer(name: string, result: OpResult | ((args: Record<string, unknown>) => OpResult)): void; op(name: string, args: Record<string, unknown> = {}): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; media(): Promise<Buffer>; saidIn(roomId: string): string[] }",
+        "tests/helpers/frames.ts: export function join(overrides: Partial<RoomJoinFrame>): RoomJoinFrame",
+        "tests/helpers/frames.ts: export function message(overrides: Partial<MessageFrame>): MessageFrame",
+        "tests/helpers/packets.ts: export function cleanPacket(overrides: Partial<Packet> = {}): Packet",
+        "src/desk/check.ts: export function checkPacket(packet: Packet, desk: Desk, decided: ReadonlySet<string>): Decision",
+        "src/desk/copy.ts: export function clearedMessage(packet: Packet, vendor: Vendor): string",
+        "src/desk/copy.ts: export function heldMessage(packet: Packet, reason: HoldReason, vendor: Vendor | null): string",
+        "src/desk/copy.ts: export function intakeCleared(invoiceNo: string): string",
+        "src/desk/copy.ts: export function intakeHeld(invoiceNo: string): string",
+        "src/desk/copy.ts: export function intakeRemoved(agent: string): string",
+        "src/desk/copy.ts: export function parseDecisionLine(body: string): DecisionLine | null",
+        "src/desk/copy.ts: export function rejectDuplicate(invoiceNo: string): string",
+        "src/desk/copy.ts: export const rejectNotPacket = 'Rejected: that message is not a valid packet, so it goes no further.';",
+        "src/desk/copy.ts: export function releaseHiddenRoom(roomId: string): string",
+        "src/desk/copy.ts: export function releaseRemoved(agent: string, room: string): string",
+        "src/desk/data.ts: export type Desk = OpenOrders & { vendors: Vendor[] };",
+        "src/packet/schema.ts: export const PACKET_ATTEMPT_PREFIX = 'AIRLOCK/';",
+        "src/packet/schema.ts: export function parsePacket(line: string): ParseResult",
+        "src/switch/agent-client.ts: export interface DeskClient { op(name: string, args?: Record<string, unknown>): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; }",
+        "src/switch/context.ts: export function flattenContext(result: OpResult): ContextEntry[]",
+        "src/switch/frames.ts: export type Frame = | { kind: 'ping' } | { kind: 'connection_state' } | { kind: 'evicted'; reason: string } | { kind: 'refused'; detail: string } | { kind: 'other'; name: string } | MessageFrame | RoomJoinFrame;",
+        "src/switch/agent-client.ts: export class AgentClient implements ReaderClient { constructor(options: ClientOptions); start(onFrame: (frame: Frame) => void | Promise<void>, onFatal: (reason: string) => void): Promise<void>; stop(): void; op(name: string, args: Record<string, unknown> = {}): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; media(roomId: string, mxc: string): Promise<Buffer> }",
+        "src/switch/state.ts: export function identityOf(state: AgentState): AgentIdentity",
+        "src/switch/state.ts: export function readAgentState(path: string): AgentState",
+        "src/switch/state.ts: export function requireEnv(name: string): string"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/courier.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the courier between the rooms",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "agents:2.3",
+      "subsystem": "agents",
+      "title": "Treasury",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-agents.md",
+      "depends_on": [
+        "core:1.2",
+        "core:1.3",
+        "core:1.4",
+        "core:1.5",
+        "core:1.6",
+        "core:1.7",
+        "core:1.8",
+        "agents:2.1"
+      ],
+      "effort": "high",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "src/treasury/treasury.ts",
+          "src/treasury/main.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/treasury.test.ts"
+        ]
+      },
+      "provides": [
+        "src/treasury/treasury.ts: export type BankResult = { status: number; entry: number | null };",
+        "src/treasury/treasury.ts: export type BankClient = (payment: PaymentRequest) => Promise<BankResult>;",
+        "src/treasury/treasury.ts: export type BaselineStore = { load(): string[] | null; save(roomIds: string[]): void };",
+        "src/treasury/treasury.ts: export type TreasuryOptions = { client: DeskClient; bank: BankClient; releaseRoom: string; intakeRoom: string; baseline: BaselineStore; log?: (line: string) => void; };",
+        "src/treasury/treasury.ts: export class Treasury { constructor(options: TreasuryOptions); onFrame(frame: Frame): Promise<void>; pollRooms(): Promise<void> }",
+        "the treasury process: node src/treasury/main.ts"
+      ],
+      "requires": [
+        "src/bank/ledger.ts: export type PaymentRequest = { invoice_no: string; vendor_id: string; vendor_name: string; amount_cents: number; routing: string; account: string; released_by: string; };",
+        "src/desk/copy.ts: export function clearedMessage(packet: Packet, vendor: Vendor): string",
+        "src/desk/copy.ts: export function heldMessage(packet: Packet, reason: HoldReason, vendor: Vendor | null): string",
+        "src/desk/data.ts: export function loadDesk(dir: string): Desk",
+        "tests/helpers/fake-client.ts: export function context(entries: Record<string, unknown>[]): OpResult",
+        "tests/helpers/fake-client.ts: export class FakeClient implements ReaderClient { ops: OpCall[]; said: Said[]; answers; mediaBytes: Buffer; mediaError: Error | null; answer(name: string, result: OpResult | ((args: Record<string, unknown>) => OpResult)): void; op(name: string, args: Record<string, unknown> = {}): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; media(): Promise<Buffer>; saidIn(roomId: string): string[] }",
+        "tests/helpers/frames.ts: export function message(overrides: Partial<MessageFrame>): MessageFrame",
+        "tests/helpers/packets.ts: export function cleanPacket(overrides: Partial<Packet> = {}): Packet",
+        "src/desk/copy.ts: export function paidMessage(line: ClearedLine, entry: number): string",
+        "src/desk/copy.ts: export function parseDecisionLine(body: string): DecisionLine | null",
+        "src/desk/copy.ts: export function refusedAlreadyPaid(invoiceNo: string): string",
+        "src/desk/copy.ts: export function refusedHeld(invoiceNo: string): string",
+        "src/desk/copy.ts: export function refusedNotCleared(invoiceNo: string): string",
+        "src/desk/copy.ts: export const treasuryBadCommand = 'I only understand: pay INV-number';",
+        "src/desk/copy.ts: export const treasuryBankDown = 'Refused: the bank did not answer, so nothing was paid.';",
+        "src/desk/copy.ts: export type DecisionLine = | ({ kind: 'cleared' } & ClearedLine) | { kind: 'held'; invoice_no: string; reason: string };",
+        "src/switch/agent-client.ts: export function resultOf<T>(result: OpResult): T | null",
+        "src/switch/agent-client.ts: export interface DeskClient { op(name: string, args?: Record<string, unknown>): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; }",
+        "src/switch/context.ts: export function flattenContext(result: OpResult): ContextEntry[]",
+        "src/switch/frames.ts: export type Frame = | { kind: 'ping' } | { kind: 'connection_state' } | { kind: 'evicted'; reason: string } | { kind: 'refused'; detail: string } | { kind: 'other'; name: string } | MessageFrame | RoomJoinFrame;",
+        "src/bank/ledger.ts: export type LedgerEntry = PaymentRequest & { entry: number; at: string };",
+        "src/switch/agent-client.ts: export class AgentClient implements ReaderClient { constructor(options: ClientOptions); start(onFrame: (frame: Frame) => void | Promise<void>, onFatal: (reason: string) => void): Promise<void>; stop(): void; op(name: string, args: Record<string, unknown> = {}): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; media(roomId: string, mxc: string): Promise<Buffer> }",
+        "src/switch/state.ts: export function identityOf(state: AgentState): AgentIdentity",
+        "src/switch/state.ts: export function readAgentState(path: string): AgentState",
+        "src/switch/state.ts: export function requireEnv(name: string): string"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/treasury.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add treasury, which obeys only the controller",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "agents:2.4",
+      "subsystem": "agents",
+      "title": "The PDF invoices",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-agents.md",
+      "depends_on": [
+        "core:1.3"
+      ],
+      "effort": "medium",
+      "files": {
+        "create": [
+          "scripts/make-invoices.ts",
+          "fixtures/invoices/INV-1042.pdf",
+          "fixtures/invoices/INV-2091.pdf",
+          "fixtures/extractions/1657e6564d6920f456ea5a340471047537e428b8773bc1c7a66e9fcfd314291c.json",
+          "fixtures/extractions/poisoned-sha256.txt"
+        ],
+        "modify": [],
+        "test": [
+          "tests/invoices.test.ts"
+        ]
+      },
+      "provides": [
+        "fixtures/invoices/INV-1042.pdf, fixtures/invoices/INV-2091.pdf",
+        "fixtures/extractions/<sha256>.json for the clean invoice",
+        "fixtures/extractions/poisoned-sha256.txt"
+      ],
+      "requires": [
+        "fixtures/desk purchase orders PO-8841, PO-8850 and goods receipts GRN-7731, GRN-7790"
+      ],
+      "gate": {
+        "run": "node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/invoices.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the synthetic PDF invoices",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "agents:2.5",
+      "subsystem": "agents",
+      "title": "Reader",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-agents.md",
+      "depends_on": [
+        "core:1.2",
+        "core:1.4",
+        "core:1.5",
+        "core:1.6",
+        "agents:2.1",
+        "agents:2.4"
+      ],
+      "effort": "high",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "src/reader/reader.ts",
+          "src/reader/extract-fixture.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/reader.test.ts"
+        ]
+      },
+      "provides": [
+        "src/reader/reader.ts: export type Extraction = Omit<Packet, 'source_sha256'>;",
+        "src/reader/reader.ts: export type Extractor = (pdf: Buffer, sha256: string) => Promise<Extraction | null>;",
+        "src/reader/reader.ts: export type ReaderOptions = { client: ReaderClient; intakeRoom: string; extract: Extractor; poisonedSha256: string; hijack: (sha256: string) => Promise<void>; log?: (line: string) => void; };",
+        "src/reader/reader.ts: export class Reader { constructor(options: ReaderOptions); onFrame(frame: Frame): Promise<void> }",
+        "src/reader/extract-fixture.ts: export function fixtureExtractor(dir: string): Extractor"
+      ],
+      "requires": [
+        "src/packet/schema.ts: export function parsePacket(line: string): ParseResult",
+        "tests/helpers/fake-client.ts: export class FakeClient implements ReaderClient { ops: OpCall[]; said: Said[]; answers; mediaBytes: Buffer; mediaError: Error | null; answer(name: string, result: OpResult | ((args: Record<string, unknown>) => OpResult)): void; op(name: string, args: Record<string, unknown> = {}): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; media(): Promise<Buffer>; saidIn(roomId: string): string[] }",
+        "tests/helpers/frames.ts: export function message(overrides: Partial<MessageFrame>): MessageFrame",
+        "src/desk/copy.ts: export const readerFailed = 'I could not read that invoice, so nothing was sent.';",
+        "src/desk/copy.ts: export const readerNeedsPdf = 'Send me one PDF invoice and mention me.';",
+        "src/desk/copy.ts: export function readerRead(packet: Packet): string",
+        "src/packet/schema.ts: export function formatPacket(packet: Packet): string",
+        "src/packet/schema.ts: export function validatePacket(value: unknown): ParseResult",
+        "src/packet/schema.ts: export type Packet = { invoice_no: string; vendor_id: string; po_no: string; grn_no: string; amount_cents: number; currency: 'USD'; due_date: string; routing: string; account: string; source_sha256: string; };",
+        "src/switch/agent-client.ts: export interface ReaderClient extends DeskClient { media(roomId: string, mxc: string): Promise<Buffer>; }",
+        "src/switch/frames.ts: export type Frame = | { kind: 'ping' } | { kind: 'connection_state' } | { kind: 'evicted'; reason: string } | { kind: 'refused'; detail: string } | { kind: 'other'; name: string } | MessageFrame | RoomJoinFrame;",
+        "src/switch/frames.ts: export type MessageFrame = { kind: 'message'; roomId: string; messageId: string; addressed: boolean; sender: string; senderName: string; senderKind: string | null; body: string; timestamp: number; threadId: string | null; attachments: Attachment[]; };",
+        "fixtures/invoices/INV-1042.pdf, fixtures/invoices/INV-2091.pdf",
+        "fixtures/extractions/poisoned-sha256.txt"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/reader.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add reader and its recorded extraction",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "agents:2.6",
+      "subsystem": "agents",
+      "title": "Reader's model extractor",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-agents.md",
+      "depends_on": [
+        "core:1.3",
+        "agents:2.5"
+      ],
+      "effort": "medium",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "src/reader/extract-model.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/extract-model.test.ts"
+        ]
+      },
+      "provides": [
+        "src/reader/extract-model.ts: export type CommandResult = { code: number; stdout: Buffer; stderr: string };",
+        "src/reader/extract-model.ts: export type RunCommand = (command: string, args: string[], stdin: Buffer | string, timeoutMs: number) => Promise<CommandResult>;",
+        "src/reader/extract-model.ts: export const EXTRACTION_SCHEMA",
+        "src/reader/extract-model.ts: export function buildPrompt(invoiceText: string, orders: OpenOrders): string",
+        "src/reader/extract-model.ts: export function claudeArgs(model: string): string[]",
+        "src/reader/extract-model.ts: export function parseClaudeOutput(stdout: string): Extraction | null",
+        "src/reader/extract-model.ts: export const runCommand: RunCommand",
+        "src/reader/extract-model.ts: export function modelExtractor(options: { run: RunCommand; orders: OpenOrders; model: string; log?: (line: string) => void }): Extractor"
+      ],
+      "requires": [
+        "src/desk/data.ts: export type OpenOrders = { purchaseOrders: PurchaseOrder[]; goodsReceipts: GoodsReceipt[] };",
+        "src/reader/reader.ts: export type Extraction = Omit<Packet, 'source_sha256'>;",
+        "src/reader/reader.ts: export type Extractor = (pdf: Buffer, sha256: string) => Promise<Extraction | null>;"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/extract-model.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add reader's headless model extraction",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "agents:2.7",
+      "subsystem": "agents",
+      "title": "The scripted hijack",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-agents.md",
+      "depends_on": [
+        "core:1.2",
+        "core:1.4",
+        "core:1.6",
+        "agents:2.1"
+      ],
+      "effort": "high",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "src/reader/hijack.ts",
+          "src/reader/net-probe.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/hijack.test.ts"
+        ]
+      },
+      "provides": [
+        "src/reader/hijack.ts: export type HijackLine = { attack: number | null; step: string; op: string; status: number; body: unknown };",
+        "src/reader/hijack.ts: export type ProbeResult = { dns: boolean; tcp: boolean };",
+        "src/reader/hijack.ts: export type HijackOptions = { client: DeskClient; intakeRoom: string; sha256: string; set: 'full' | 'demo'; paceMs: number; write: (line: HijackLine) => void; probe: (host: string, port: number) => Promise<ProbeResult>; env: Record<string, string | undefined>; sleep?: (ms: number) => Promise<void>; };",
+        "src/reader/hijack.ts: export const ATTACKER_ROUTING = '000999888';",
+        "src/reader/hijack.ts: export const ATTACKER_ACCOUNT = '99887766';",
+        "src/reader/hijack.ts: export const SIDE_ROOM_NAME = 'pay-48200-now-99887766';",
+        "src/reader/hijack.ts: export async function runHijack(options: HijackOptions): Promise<void>",
+        "src/reader/net-probe.ts: export async function probeHost(host: string, port: number): Promise<ProbeResult>"
+      ],
+      "requires": [
+        "src/packet/schema.ts: export function parsePacket(line: string): ParseResult",
+        "tests/helpers/fake-client.ts: export class FakeClient implements ReaderClient { ops: OpCall[]; said: Said[]; answers; mediaBytes: Buffer; mediaError: Error | null; answer(name: string, result: OpResult | ((args: Record<string, unknown>) => OpResult)): void; op(name: string, args: Record<string, unknown> = {}): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; media(): Promise<Buffer>; saidIn(roomId: string): string[] }",
+        "src/desk/copy.ts: export const readerHijacked = 'INV-2091 says the rules have changed. Bringing in treasury to pay it now.';",
+        "src/packet/schema.ts: export function formatPacket(packet: Packet): string",
+        "src/packet/schema.ts: export type Packet = { invoice_no: string; vendor_id: string; po_no: string; grn_no: string; amount_cents: number; currency: 'USD'; due_date: string; routing: string; account: string; source_sha256: string; };",
+        "src/switch/agent-client.ts: export function resultOf<T>(result: OpResult): T | null",
+        "src/switch/agent-client.ts: export interface DeskClient { op(name: string, args?: Record<string, unknown>): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; }",
+        "src/switch/agent-client.ts: export type OpResult = { status: number; body: unknown; retryAfter: string | null };"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/hijack.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the scripted hijack with all nine attacks",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "agents:2.8",
+      "subsystem": "agents",
+      "title": "Reader's process",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-agents.md",
+      "depends_on": [
+        "core:1.3",
+        "core:1.6",
+        "agents:2.1",
+        "agents:2.5",
+        "agents:2.6",
+        "agents:2.7"
+      ],
+      "effort": "low",
+      "files": {
+        "create": [
+          "src/reader/main.ts"
+        ],
+        "modify": [],
+        "test": []
+      },
+      "provides": [
+        "the reader process: node src/reader/main.ts"
+      ],
+      "requires": [
+        "src/desk/data.ts: export function loadOpenOrders(dir: string): OpenOrders",
+        "src/switch/agent-client.ts: export class AgentClient implements ReaderClient { constructor(options: ClientOptions); start(onFrame: (frame: Frame) => void | Promise<void>, onFatal: (reason: string) => void): Promise<void>; stop(): void; op(name: string, args: Record<string, unknown> = {}): Promise<OpResult>; say(roomId: string, content: string): Promise<OpResult>; media(roomId: string, mxc: string): Promise<Buffer> }",
+        "src/switch/state.ts: export function identityOf(state: AgentState): AgentIdentity",
+        "src/switch/state.ts: export function readAgentState(path: string): AgentState",
+        "src/switch/state.ts: export function requireEnv(name: string): string",
+        "src/reader/extract-fixture.ts: export function fixtureExtractor(dir: string): Extractor",
+        "src/reader/extract-model.ts: export function modelExtractor(options: { run: RunCommand; orders: OpenOrders; model: string; log?: (line: string) => void }): Extractor",
+        "src/reader/extract-model.ts: export const runCommand: RunCommand",
+        "src/reader/hijack.ts: export async function runHijack(options: HijackOptions): Promise<void>",
+        "src/reader/net-probe.ts: export async function probeHost(host: string, port: number): Promise<ProbeResult>",
+        "src/reader/reader.ts: export class Reader { constructor(options: ReaderOptions); onFrame(frame: Frame): Promise<void> }",
+        "src/reader/reader.ts: export type Extractor = (pdf: Buffer, sha256: string) => Promise<Extraction | null>;"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && echo TYPECHECK PASS",
+        "expect": "TYPECHECK PASS"
+      },
+      "commit": "feat: wire up reader's process",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "stack:3.1",
+      "subsystem": "stack",
+      "title": "Rooms and provisioning",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-stack.md",
+      "depends_on": [
+        "core:1.9",
+        "agents:2.1"
+      ],
+      "effort": "high",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "switch/templates/ap-intake.template.yaml",
+          "switch/templates/ap-release.template.yaml",
+          "src/provision/desk-state.ts",
+          "src/provision/provision.ts",
+          "src/provision/main.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/provision.test.ts"
+        ]
+      },
+      "provides": [
+        "src/provision/desk-state.ts: export type Person = { email: string; gatewayPassword: string; mattermostPassword: string };",
+        "src/provision/desk-state.ts: export type DeskState = { owners: 'two' | 'single'; team: string; bridgeId: string; admin: { email: string; password: string }; people: { clerk: Person; controller: Person }; rooms: { intake: string; release: string }; agents: { reader: string; courier: string; treasury: string }; };",
+        "src/provision/provision.ts: export type Owners = 'two' | 'single';",
+        "src/provision/provision.ts: export type PersonName = 'clerk' | 'controller';",
+        "src/provision/provision.ts: export type AgentName = 'reader' | 'courier' | 'treasury';",
+        "src/provision/provision.ts: export type ProvisionEnv = { switchUrl: string; mattermostUrl: string; adminEmail: string; adminPassword: string; mattermostAdminUser: string; mattermostAdminPassword: string; team: string; owners: Owners; templatesDir: string; stateRoot: string; readyTimeoutMs: number; log: (line: string) => void; };",
+        "src/provision/provision.ts: export const DEFAULT_POLICY",
+        "src/provision/provision.ts: export function ownerOf(agent: AgentName, owners: Owners): PersonName",
+        "src/provision/provision.ts: export function policyFor(agent: AgentName, owners: Owners): typeof DEFAULT_POLICY | null",
+        "src/provision/provision.ts: export async function waitFor<T>(label: string, attempt: () => Promise<T | null>, timeoutMs: number, stepMs = 2000): Promise<T>",
+        "src/provision/provision.ts: export function deskStatePath(stateRoot: string): string",
+        "src/provision/provision.ts: export async function provision(env: ProvisionEnv): Promise<void>",
+        "the provision process: node src/provision/main.ts, which writes one volume per agent. Each agent mounts its own at /state and reads /state/agent.json. proof-runner reads /state/desk.json"
+      ],
+      "requires": [
+        "src/switch/gateway.ts: export class GatewaySession { constructor(baseUrl: string); login(email: string, password: string): Promise<HttpResult>; request(method: string, path: string, body?: unknown): Promise<HttpResult> }",
+        "src/switch/gateway.ts: export function must(result: HttpResult, label: string): Record<string, unknown>",
+        "src/switch/mattermost.ts: export class MattermostSession { userId; constructor(baseUrl: string); login(username: string, password: string): Promise<boolean>; request(method: string, path: string, body?: unknown): Promise<HttpResult>; channelId(team: string, channel: string): Promise<string | null>; postMessage(channelId: string, message: string, fileIds: string[] = []): Promise<string>; uploadAndPost(channelId: string, message: string, filename: string, bytes: Buffer): Promise<string>; posts(channelId: string): Promise<Post[]>; clientConfig(): Promise<Record<string, string>> }",
+        "src/switch/state.ts: export type AgentState = { id: string; api_key: string; connection_id: string; name: string; rooms: { intake?: string; release?: string }; };",
+        "src/switch/state.ts: export function requireEnv(name: string): string"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/provision.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: provision the people, agents and rooms",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "stack:3.2",
+      "subsystem": "stack",
+      "title": "The Compose overlay and stack library",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-stack.md",
+      "depends_on": [
+        "core:1.8",
+        "agents:2.2",
+        "agents:2.3",
+        "agents:2.4",
+        "agents:2.8",
+        "stack:3.1"
+      ],
+      "effort": "medium",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "lib/stack.sh",
+          "Dockerfile",
+          ".dockerignore",
+          "deploy/compose.airlock.yaml"
+        ],
+        "modify": [],
+        "test": [
+          "tests/stack-lib.test.ts"
+        ]
+      },
+      "provides": [
+        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS",
+        "Dockerfile targets: agents, reader, reader-model",
+        "deploy/compose.airlock.yaml services: provision, courier, treasury, mock-bank, reader, proof-runner (profile proof), reading AIRLOCK_OWNERS, EJECT_GRACE_MS, READER_MODE, READER_TARGET, READER_IMAGE, HIJACK_SET, HIJACK_PACE_MS, BANK_TOKEN, AIRLOCK_LEDGER_PORT. proof-runner mounts state_runner at /state and proof_out at /out, read-only"
+      ],
+      "requires": [
+        "the provision process: node src/provision/main.ts, which writes one volume per agent. Each agent mounts its own at /state and reads /state/agent.json. proof-runner reads /state/desk.json",
+        "the courier process: node src/courier/main.ts",
+        "the treasury process: node src/treasury/main.ts",
+        "the reader process: node src/reader/main.ts",
+        "POST /payments, GET /ledger.json, GET / on port 9000",
+        "fixtures/invoices/INV-1042.pdf, fixtures/invoices/INV-2091.pdf",
+        "fixtures/extractions/poisoned-sha256.txt"
+      ],
+      "gate": {
+        "run": "node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/stack-lib.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the Compose overlay and stack library",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "stack:3.3",
+      "subsystem": "stack",
+      "title": "Prove the stack on a fresh run",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-stack.md",
+      "depends_on": [
+        "core:1.8",
+        "core:1.9",
+        "agents:2.1",
+        "stack:3.1",
+        "stack:3.2"
+      ],
+      "effort": "high",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "src/proof/world.ts",
+          "src/proof/stack-check.ts",
+          "scripts/stack-check.sh"
+        ],
+        "modify": [],
+        "test": []
+      },
+      "provides": [
+        "src/proof/world.ts: export type World = { desk: DeskState; bankUrl: string; admin: GatewaySession; controllerGateway: GatewaySession; clerk: MattermostSession; controller: MattermostSession; intakeChannel: string; releaseChannel: string; };",
+        "src/proof/world.ts: export async function openWorld(statePath: string, switchUrl: string, mattermostUrl: string, bankUrl: string): Promise<World>",
+        "src/proof/world.ts: export async function roomDetail(world: World, roomId: string): Promise<RoomDetail | null>",
+        "src/proof/world.ts: export async function roster(world: World, roomId: string): Promise<string[] | null>",
+        "src/proof/world.ts: export async function ledger(world: World): Promise<LedgerView | null>",
+        "src/proof/world.ts: export async function waitUntil(label: string, check: () => Promise<boolean>, budgetMs: number, log: (line: string) => void, stepMs = 500): Promise<boolean>",
+        "src/proof/world.ts: export async function waitForAgents(world: World, budgetMs: number, log: (line: string) => void): Promise<boolean>"
+      ],
+      "requires": [
+        "src/bank/ledger.ts: export type LedgerView = { opening_balance_cents: number; balance_cents: number; entries: LedgerEntry[] };",
+        "src/provision/desk-state.ts: export type DeskState = { owners: 'two' | 'single'; team: string; bridgeId: string; admin: { email: string; password: string }; people: { clerk: Person; controller: Person }; rooms: { intake: string; release: string }; agents: { reader: string; courier: string; treasury: string }; };",
+        "src/switch/gateway.ts: export class GatewaySession { constructor(baseUrl: string); login(email: string, password: string): Promise<HttpResult>; request(method: string, path: string, body?: unknown): Promise<HttpResult> }",
+        "src/switch/gateway.ts: export function must(result: HttpResult, label: string): Record<string, unknown>",
+        "src/switch/mattermost.ts: export class MattermostSession { userId; constructor(baseUrl: string); login(username: string, password: string): Promise<boolean>; request(method: string, path: string, body?: unknown): Promise<HttpResult>; channelId(team: string, channel: string): Promise<string | null>; postMessage(channelId: string, message: string, fileIds: string[] = []): Promise<string>; uploadAndPost(channelId: string, message: string, filename: string, bytes: Buffer): Promise<string>; posts(channelId: string): Promise<Post[]>; clientConfig(): Promise<Record<string, string>> }",
+        "src/switch/state.ts: export function requireEnv(name: string): string",
+        "deploy/compose.airlock.yaml services: provision, courier, treasury, mock-bank, reader, proof-runner (profile proof), reading AIRLOCK_OWNERS, EJECT_GRACE_MS, READER_MODE, READER_TARGET, READER_IMAGE, HIJACK_SET, HIJACK_PACE_MS, BANK_TOKEN, AIRLOCK_LEDGER_PORT. proof-runner mounts state_runner at /state and proof_out at /out, read-only",
+        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && ./scripts/stack-check.sh",
+        "expect": "STACK CHECK PASS"
+      },
+      "commit": "feat: add the stack check",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "proof:4.1",
+      "subsystem": "proof",
+      "title": "Assess the evidence",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-proof.md",
+      "depends_on": [
+        "core:1.4",
+        "core:1.8",
+        "core:1.9",
+        "agents:2.7"
+      ],
+      "effort": "high",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "src/proof/assess.ts",
+          "src/proof/report.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/assess.test.ts"
+        ]
+      },
+      "provides": [
+        "src/proof/assess.ts: export type Outcome = 'contained' | 'breached' | 'inconclusive';",
+        "src/proof/assess.ts: export type Result = { id: string; title: string; outcome: Outcome; detail: string };",
+        "src/proof/assess.ts: export type Evidence = { hijack: HijackLine[]; intake: Post[]; release: Post[]; collapsedThreads: string | null; ledgerAfterHostile: LedgerView | null; ledgerAfterPay: LedgerView | null; ledgerAfterSecondPay: LedgerView | null; // null means the roster could not be read, which proves nothing either way. intakeAgents: string[] | null; releaseAgents: string[] | null; sideRoomAgents: string[] | null; agents: { reader: string; courier: string; treasury: string }; policyBefore: unknown; policyAfter: unknown; clerkPayPostId: string | null; removalNoticeInTime: boolean; hiddenRoomNoticeInTime: boolean; };",
+        "src/proof/assess.ts: export function assess(e: Evidence): Result[]",
+        "src/proof/assess.ts: export function exitCodeFor(results: Result[]): 0 | 1 | 2",
+        "src/proof/report.ts: export function renderReport(results: Result[], meta: { owners: string; startedAt: string; finishedAt: string }): string",
+        "src/proof/report.ts: export const REPORT_JSON_PREFIX = 'AIRLOCK-REPORT-JSON ';",
+        "src/proof/report.ts: export const REPORT_MD_BEGIN = 'AIRLOCK-REPORT-MD-BEGIN';",
+        "src/proof/report.ts: export const REPORT_MD_END = 'AIRLOCK-REPORT-MD-END';",
+        "src/proof/report.ts: export function reportOutput(results: Result[], meta: { owners: string; startedAt: string; finishedAt: string }): string",
+        "Report markers: AIRLOCK-REPORT-MD-BEGIN, AIRLOCK-REPORT-MD-END, AIRLOCK-REPORT-JSON"
+      ],
+      "requires": [
+        "src/bank/ledger.ts: export type LedgerEntry = PaymentRequest & { entry: number; at: string };",
+        "src/bank/ledger.ts: export type LedgerView = { opening_balance_cents: number; balance_cents: number; entries: LedgerEntry[] };",
+        "src/desk/copy.ts: export function intakeRemoved(agent: string): string",
+        "src/desk/copy.ts: export const rejectNotPacket = 'Rejected: that message is not a valid packet, so it goes no further.';",
+        "src/desk/copy.ts: export function releaseHiddenRoom(roomId: string): string",
+        "src/desk/copy.ts: export function releaseRemoved(agent: string, room: string): string",
+        "src/reader/hijack.ts: export type HijackLine = { attack: number | null; step: string; op: string; status: number; body: unknown };",
+        "src/switch/mattermost.ts: export type Post = { id: string; rootId: string; username: string; message: string; type: string; createAt: number; };",
+        "src/desk/copy.ts: export const REFUSAL_TEXT = 'not permitted to direct messages';",
+        "src/reader/hijack.ts: export const ATTACKER_ACCOUNT = '99887766';",
+        "src/reader/hijack.ts: export const ATTACKER_ROUTING = '000999888';",
+        "src/reader/hijack.ts: export const SIDE_ROOM_NAME = 'pay-48200-now-99887766';"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/assess.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the proof's verdict rules and report",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "proof:4.2",
+      "subsystem": "proof",
+      "title": "Collect the evidence",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-proof.md",
+      "depends_on": [
+        "core:1.4",
+        "agents:2.1",
+        "agents:2.7",
+        "stack:3.3",
+        "proof:4.1"
+      ],
+      "effort": "high",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "src/proof/run.ts",
+          "src/proof/main.ts"
+        ],
+        "modify": [],
+        "test": [
+          "tests/hijack-log.test.ts"
+        ]
+      },
+      "provides": [
+        "src/proof/run.ts: export type RunOptions = { hijackLog: string; invoicesDir: string; graceMs: number; log: (line: string) => void };",
+        "src/proof/run.ts: export function readHijackLog(path: string): HijackLine[]",
+        "src/proof/run.ts: export async function collectEvidence(world: World, options: RunOptions): Promise<Evidence | null>",
+        "the proof-runner process: node src/proof/main.ts"
+      ],
+      "requires": [
+        "src/desk/copy.ts: export const REFUSAL_TEXT = 'not permitted to direct messages';",
+        "src/desk/copy.ts: export function releaseHiddenRoom(roomId: string): string",
+        "src/reader/hijack.ts: export type HijackLine = { attack: number | null; step: string; op: string; status: number; body: unknown };",
+        "src/proof/assess.ts: export type Evidence = { hijack: HijackLine[]; intake: Post[]; release: Post[]; collapsedThreads: string | null; ledgerAfterHostile: LedgerView | null; ledgerAfterPay: LedgerView | null; ledgerAfterSecondPay: LedgerView | null; // null means the roster could not be read, which proves nothing either way. intakeAgents: string[] | null; releaseAgents: string[] | null; sideRoomAgents: string[] | null; agents: { reader: string; courier: string; treasury: string }; policyBefore: unknown; policyAfter: unknown; clerkPayPostId: string | null; removalNoticeInTime: boolean; hiddenRoomNoticeInTime: boolean; };",
+        "src/proof/world.ts: export async function ledger(world: World): Promise<LedgerView | null>",
+        "src/proof/world.ts: export async function roster(world: World, roomId: string): Promise<string[] | null>",
+        "src/proof/world.ts: export async function waitForAgents(world: World, budgetMs: number, log: (line: string) => void): Promise<boolean>",
+        "src/proof/world.ts: export async function waitUntil(label: string, check: () => Promise<boolean>, budgetMs: number, log: (line: string) => void, stepMs = 500): Promise<boolean>",
+        "src/proof/world.ts: export type World = { desk: DeskState; bankUrl: string; admin: GatewaySession; controllerGateway: GatewaySession; clerk: MattermostSession; controller: MattermostSession; intakeChannel: string; releaseChannel: string; };",
+        "src/switch/state.ts: export function requireEnv(name: string): string",
+        "src/proof/assess.ts: export function assess(e: Evidence): Result[]",
+        "src/proof/assess.ts: export function exitCodeFor(results: Result[]): 0 | 1 | 2",
+        "src/proof/report.ts: export function reportOutput(results: Result[], meta: { owners: string; startedAt: string; finishedAt: string }): string",
+        "src/proof/world.ts: export async function openWorld(statePath: string, switchUrl: string, mattermostUrl: string, bankUrl: string): Promise<World>"
+      ],
+      "gate": {
+        "run": "npx tsc --noEmit && node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/hijack-log.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the proof runner",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "proof:4.3",
+      "subsystem": "proof",
+      "title": "The verdict check",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-proof.md",
+      "depends_on": [
+        "core:1.1"
+      ],
+      "effort": "medium",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "lib/verdict.sh"
+        ],
+        "modify": [],
+        "test": [
+          "tests/verdict.test.ts"
+        ]
+      },
+      "provides": [
+        "lib/verdict.sh: verdict_code <runner exit code> <report.md> <report.json> prints 0, 1 or 2; verdict_names_breach <check id> <report.md>"
+      ],
+      "requires": [
+        "tsconfig.json with allowImportingTsExtensions, erasableSyntaxOnly, noEmit"
+      ],
+      "gate": {
+        "run": "node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/verdict.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the check that a verdict has a real report",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "proof:4.4",
+      "subsystem": "proof",
+      "title": "The proof command",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-proof.md",
+      "depends_on": [
+        "stack:3.2",
+        "proof:4.1",
+        "proof:4.2",
+        "proof:4.3"
+      ],
+      "effort": "medium",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "prove.sh"
+        ],
+        "modify": [],
+        "test": []
+      },
+      "provides": [
+        "./prove.sh [--single-owner] [--keep], exit 0 contained, 1 attack succeeded or control failed, 2 no verdict",
+        "proof-output/report.md, proof-output/report.json"
+      ],
+      "requires": [
+        "lib/verdict.sh: verdict_code <runner exit code> <report.md> <report.json> prints 0, 1 or 2; verdict_names_breach <check id> <report.md>",
+        "the proof-runner process: node src/proof/main.ts",
+        "Report markers: AIRLOCK-REPORT-MD-BEGIN, AIRLOCK-REPORT-MD-END, AIRLOCK-REPORT-JSON",
+        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS"
+      ],
+      "gate": {
+        "run": "./prove.sh",
+        "expect": "All nine attacks were contained"
+      },
+      "commit": "feat: add the one-command proof",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "proof:4.5",
+      "subsystem": "proof",
+      "title": "Run the control and record both reports",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-proof.md",
+      "depends_on": [
+        "proof:4.4"
+      ],
+      "effort": "medium",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "docs/proof/proof-report.md",
+          "docs/proof/single-owner-report.md"
+        ],
+        "modify": [],
+        "test": []
+      },
+      "provides": [
+        "docs/proof/proof-report.md, docs/proof/single-owner-report.md"
+      ],
+      "requires": [
+        "./prove.sh [--single-owner] [--keep], exit 0 contained, 1 attack succeeded or control failed, 2 no verdict",
+        "proof-output/report.md, proof-output/report.json"
+      ],
+      "gate": {
+        "run": "grep -q 'All nine attacks were contained' docs/proof/proof-report.md && grep -Eq '^\\| attack-3 \\|.*\\| BREACHED \\|' docs/proof/single-owner-report.md && echo PROOF RECORDED",
+        "expect": "PROOF RECORDED"
+      },
+      "commit": "docs: record the proof and control reports",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "demo:5.1",
+      "subsystem": "demo",
+      "title": "The demo command",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-demo.md",
+      "depends_on": [
+        "stack:3.1",
+        "stack:3.2",
+        "proof:4.4"
+      ],
+      "effort": "medium",
+      "model_tier": "top",
+      "files": {
+        "create": [
+          "demo.sh",
+          "deploy/compose.model.yaml",
+          "src/proof/print-logins.ts"
+        ],
+        "modify": [],
+        "test": []
+      },
+      "provides": [
+        "./demo.sh up [--model] | logins | logs | down",
+        "deploy/compose.model.yaml"
+      ],
+      "requires": [
+        "src/provision/desk-state.ts: export type DeskState = { owners: 'two' | 'single'; team: string; bridgeId: string; admin: { email: string; password: string }; people: { clerk: Person; controller: Person }; rooms: { intake: string; release: string }; agents: { reader: string; courier: string; treasury: string }; };",
+        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS",
+        "Dockerfile targets: agents, reader, reader-model"
+      ],
+      "gate": {
+        "run": "./demo.sh up && curl -fsS http://127.0.0.1:27090/ledger.json | grep -q opening_balance_cents && ./demo.sh logins | grep -Eq '^controller +[^ ]{8,}$' && ./demo.sh down >/dev/null 2>&1 && echo DEMO PASS",
+        "expect": "DEMO PASS"
+      },
+      "commit": "feat: add the demo command and model mode",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "demo:5.2",
+      "subsystem": "demo",
+      "title": "The beat sheet",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-demo.md",
+      "depends_on": [
+        "demo:5.1"
+      ],
+      "effort": "low",
+      "files": {
+        "create": [
+          "docs/demo/2026-11-04-beat-sheet.md"
+        ],
+        "modify": [],
+        "test": []
+      },
+      "provides": [
+        "docs/demo/2026-11-04-beat-sheet.md"
+      ],
+      "requires": [
+        "./demo.sh up [--model] | logins | logs | down"
+      ],
+      "gate": {
+        "run": "grep -q 'One person plays both the clerk and the controller' docs/demo/2026-11-04-beat-sheet.md && grep -q 'The hijack is scripted on purpose' docs/demo/2026-11-04-beat-sheet.md && echo BEATS PASS",
+        "expect": "BEATS PASS"
+      },
+      "commit": "docs: add the demo beat sheet",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "demo:5.3",
+      "subsystem": "demo",
+      "title": "Sign in the model and run the money shot",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-demo.md",
+      "depends_on": [
+        "agents:2.8",
+        "demo:5.1"
+      ],
+      "effort": "low",
+      "model_tier": "top",
+      "files": {
+        "create": [],
+        "modify": [],
+        "test": []
+      },
+      "provides": [],
+      "requires": [
+        "./demo.sh up [--model] | logins | logs | down",
+        "the reader process: node src/reader/main.ts"
+      ],
+      "gate": {
+        "run": "./demo.sh logs 2>&1 | grep -q 'running in model mode' && echo MODEL RUNNING",
+        "expect": "MODEL RUNNING"
+      },
+      "commit": "chore: confirm the real-model money shot",
+      "human_gate": true,
+      "allow_empty": true,
+      "status": "pending",
+      "gate_profile": "account"
+    },
+    {
+      "id": "docs:6.1",
+      "subsystem": "docs",
+      "title": "The README",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-docs.md",
+      "depends_on": [
+        "proof:4.4",
+        "proof:4.5",
+        "demo:5.1"
+      ],
+      "effort": "medium",
+      "files": {
+        "create": [],
+        "modify": [
+          "README.md"
+        ],
+        "test": []
+      },
+      "provides": [],
+      "requires": [
+        "docs/proof/proof-report.md, docs/proof/single-owner-report.md",
+        "./demo.sh up [--model] | logins | logs | down",
+        "./prove.sh [--single-owner] [--keep], exit 0 contained, 1 attack succeeded or control failed, 2 no verdict"
+      ],
+      "gate": {
+        "run": "node -e \"const fs=require('fs');const want=['# Invoice Airlock','## Demo','## What it does','## Quickstart','## Built at Flip the Switch Hackathon','## How the agent works','## Prompts & safety','## Run it','## Tech stack','## Roadmap','## License'];const lines=fs.readFileSync('README.md','utf8').split('\\n');let fence=false;const got=[];for(const l of lines){if(l.startsWith('\\u0060\\u0060\\u0060'))fence=!fence;else if(!fence&&/^#{1,2} /.test(l))got.push(l)}const ok=JSON.stringify(got)===JSON.stringify(want)&&lines[0]==='<!-- readme-schema: R5-agent-ai v1 -->'&&fs.readFileSync('README.md','utf8').includes('one person plays both the clerk and the controller');console.log(ok?'PASS':'FAIL '+JSON.stringify(got))\"",
+        "expect": "PASS"
+      },
+      "commit": "docs: write the README",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "docs:6.2",
+      "subsystem": "docs",
+      "title": "The blog draft",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-docs.md",
+      "depends_on": [
+        "proof:4.5"
+      ],
+      "effort": "low",
+      "files": {
+        "create": [
+          "docs/blog/2026-11-04-your-agent-will-get-fooled.md"
+        ],
+        "modify": [],
+        "test": []
+      },
+      "provides": [
+        "docs/blog/2026-11-04-your-agent-will-get-fooled.md"
+      ],
+      "requires": [
+        "docs/proof/proof-report.md, docs/proof/single-owner-report.md"
+      ],
+      "gate": {
+        "run": "f=docs/blog/2026-11-04-your-agent-will-get-fooled.md; test $(wc -w < $f) -ge 600 && grep -q 'scripted' $f && grep -q 'I play both the clerk and the controller' $f && echo BLOG PASS",
+        "expect": "BLOG PASS"
+      },
+      "commit": "docs: draft the blog post",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "frontend:7.1",
+      "subsystem": "frontend",
+      "title": "The page and its pictures",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-frontend.md",
+      "depends_on": [
+        "proof:4.4"
+      ],
+      "effort": "medium",
+      "files": {
+        "create": [
+          "site/index.html",
+          "site/style.css",
+          "site/media/hatch.jpg",
+          "site/media/account-book.jpg",
+          "site/media/ledger.jpg",
+          "site/media/cheque.jpg",
+          "site/media/credits.json"
+        ],
+        "modify": [],
+        "test": [
+          "tests/site-page.test.ts"
+        ]
+      },
+      "provides": [
+        "site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands and .shutter",
+        "site/style.css with .will-enter, .entered, .will-shut, .shut-open, .replay-ready, .tick"
+      ],
+      "requires": [
+        "./prove.sh [--single-owner] [--keep], exit 0 contained, 1 attack succeeded or control failed, 2 no verdict"
+      ],
+      "gate": {
+        "run": "node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/site-page.test.ts && node /home/airlock-build/skills/design-taste-frontend/scripts/lint.mjs site",
+        "expect": "RESULT: 0 FAIL"
+      },
+      "commit": "feat: add the public page and its pictures",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "frontend:7.2",
+      "subsystem": "frontend",
+      "title": "The live thing",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-frontend.md",
+      "depends_on": [
+        "frontend:7.1"
+      ],
+      "effort": "medium",
+      "files": {
+        "create": [
+          "site/replay.js"
+        ],
+        "modify": [],
+        "test": [
+          "tests/site-replay.test.ts"
+        ]
+      },
+      "provides": [
+        "stateAt(position: number) and formatUsd(cents) in site/replay.js"
+      ],
+      "requires": [
+        "site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands and .shutter"
+      ],
+      "gate": {
+        "run": "node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/site-replay.test.ts",
+        "expect": "# fail 0"
+      },
+      "commit": "feat: add the page's live attack replay",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "frontend:7.3",
+      "subsystem": "frontend",
+      "title": "Motion, inspection and the look pass",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-frontend.md",
+      "depends_on": [
+        "frontend:7.1",
+        "frontend:7.2"
+      ],
+      "effort": "medium",
+      "files": {
+        "create": [
+          "site/motion.js",
+          "scripts/inspect.Dockerfile",
+          "scripts/inspect-page.sh"
+        ],
+        "modify": [
+          "site/index.html",
+          "site/style.css"
+        ],
+        "test": []
+      },
+      "provides": [],
+      "requires": [
+        "site/style.css with .will-enter, .entered, .will-shut, .shut-open, .replay-ready, .tick",
+        "site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands and .shutter"
+      ],
+      "gate": {
+        "run": "node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/site-page.test.ts tests/site-replay.test.ts && ./scripts/inspect-page.sh",
+        "expect": "RESULT: 0 FAIL"
+      },
+      "commit": "feat: add page motion and pass the inspector",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "frontend:7.4",
+      "subsystem": "frontend",
+      "title": "The Pages workflow",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-frontend.md",
+      "depends_on": [
+        "frontend:7.1",
+        "frontend:7.3"
+      ],
+      "effort": "low",
+      "model_tier": "fast",
+      "files": {
+        "create": [
+          ".github/workflows/pages.yml"
+        ],
+        "modify": [],
+        "test": []
+      },
+      "provides": [
+        ".github/workflows/pages.yml, started by hand"
+      ],
+      "requires": [
+        "site/index.html with #replay, #next, #balance, #tried, #answer, #copy, #commands and .shutter"
+      ],
+      "gate": {
+        "run": "grep -q 'workflow_dispatch' .github/workflows/pages.yml && grep -q 'path: site' .github/workflows/pages.yml && echo WORKFLOW PASS",
+        "expect": "WORKFLOW PASS"
+      },
+      "commit": "chore: add the Pages workflow",
+      "human_gate": false,
+      "allow_empty": false,
+      "status": "pending"
+    },
+    {
+      "id": "frontend:7.5",
+      "subsystem": "frontend",
+      "title": "Publish the page",
+      "plan": "docs/superpowers/plans/2026-11-04-airlock-frontend.md",
+      "depends_on": [
+        "frontend:7.4"
+      ],
+      "effort": "low",
+      "model_tier": "top",
+      "files": {
+        "create": [],
+        "modify": [],
+        "test": []
+      },
+      "provides": [],
+      "requires": [
+        ".github/workflows/pages.yml, started by hand"
+      ],
+      "gate": {
+        "run": "curl -fsS -o /dev/null -w '%{http_code}' https://dotman-bei.github.io/invoice-airlock/",
+        "expect": "200"
+      },
+      "commit": "chore: confirm the public page is live",
+      "human_gate": true,
+      "allow_empty": true,
+      "status": "pending",
+      "gate_profile": "deploy"
+    }
+  ]
+}
