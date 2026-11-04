@@ -24,7 +24,7 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 ## Tollgate
 
 - Report: `docs/tollgate/2026-11-04-tollgate.md`, from Step 0a Stage 0, extended by a VPS probe.
-- **Verdicts:** 0a CLEAR · 0 CLEAR · 1 BLOCKED (C1 Docker, C2 Switch Console, C3 Switch server) · 2 BLOCKED (C1, C2, C3; stack rows not written) · 2.5 BLOCKED (row 10 ffmpeg; row 6 computer use to re-probe) · 3 CLEAR on that session's probes, re-probe row 5.
+- **Verdicts:** 0a CLEAR · 0 CLEAR · 1 BLOCKED (C2 Switch Console, C3 Switch server) · 2 BLOCKED (C2, C3; stack rows not written) · 2.5 BLOCKED (row 10 ffmpeg; row 6 computer use to re-probe) · 3 CLEAR on that session's probes, re-probe row 5.
 - Routing: `per-spawn`; opus, sonnet and haiku resolve to `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`. No warnings.
 - `gh` is not on the VS Code PATH. Kickoffs carry `C:\Users\bamig\AppData\Local\Programs\GitHub CLI\bin\gh.exe`.
 
@@ -61,6 +61,8 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 
 - **Correction 2026-11-04:** do not run the earlier prompt that installs Docker Desktop on the laptop. Docker's published minimum is build 22631 and the laptop is build 21996.
 - **Decision (user, 2026-11-04):** Switch runs on the user's Ubuntu VPS, with Switch Console on the laptop if it opens. The VPS runs other services that must stay up: `127.0.0.1:8000` is taken, 4.1 GiB was available with no swap, and Docker was not installed at the probe.
+- **VPS state (verified from the committed report, 2026-11-04):** Docker and swap are ready, existing services were undisturbed, about 3.6 GiB available plus 4 GiB swap. Switch is not installed or started. C1 passes on the VPS.
+- **Before the server starts:** VPS sessions run as root. Don't run Switch agents as root on a machine with other services; set up a dedicated non-root user first, with its own `claude` sign-in.
 - **First test:** install Switch Console on the laptop to learn whether #1441 applies. The route after that depends on the result.
 - **Fallbacks:** a separate small VPS if the user will not risk the current one. Compose plus Gateway if Console will not open.
 
@@ -94,7 +96,7 @@ The user pastes the idea-forge kickoff in a new tab (`opus` + `max`), and in par
 
 ## Open blockers
 
-1. Switch route not proven (C1, C2, C3). Blocks Steps 1 and 2.
+1. Switch route not proven (C2, C3). Blocks Steps 1 and 2.
 2. Submission form is off (`submission_mode: none`). User to ask in Discord today; recheck the API.
 3. ffmpeg missing. Blocks 2.5; fix before the demo.
 4. Wispr Flow not installed (C5). Blocks only that side track, but usage should start now.
