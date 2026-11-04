@@ -30,7 +30,7 @@
 **Effort:** medium
 **Model tier:** top
 **Provides:** `./demo.sh up [--model] | logins | logs | down`, `deploy/compose.model.yaml`
-**Requires:** `src/provision/desk-state.ts: export type DeskState = { owners: 'two' | 'single'; team: string; bridgeId: string; admin: { email: string; password: string }; people: { clerk: Person; controller: Person }; rooms: { intake: string; release: string }; agents: { reader: string; courier: string; treasury: string }; };`, `lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS`, `Dockerfile targets: agents, reader, reader-model`
+**Requires:** `src/provision/desk-state.ts: export type DeskState = { owners: 'two' | 'single'; team: string; bridgeId: string; admin: { email: string; password: string }; people: { clerk: Person; controller: Person }; rooms: { intake: string; release: string }; agents: { reader: string; courier: string; treasury: string }; };`, `lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS`, `Dockerfile targets: agents, reader, reader-model`
 
 The gate runs without `--model`, so it uses no model and no key. The demo paces hostile steps at 2,500 ms and delays removal 15,000 ms, so each beat stays on screen.
 
@@ -38,7 +38,7 @@ Upstream signatures, pasted from their providers:
 
 ```text
 src/provision/desk-state.ts: export type DeskState = { owners: 'two' | 'single'; team: string; bridgeId: string; admin: { email: string; password: string }; people: { clerk: Person; controller: Person }; rooms: { intake: string; release: string }; agents: { reader: string; courier: string; treasury: string }; };
-lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS
+lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS
 Dockerfile targets: agents, reader, reader-model
 ```
 
@@ -94,6 +94,7 @@ case "${1:-}" in
     fi
     prepare
     stack_compose ps --status running 2>/dev/null | grep -q switch || stack_check_ports || exit 2
+    stack_pull || exit 2
     stack_compose up -d --build || exit 2
     echo
     echo "Mattermost:  http://localhost:$AIRLOCK_MATTERMOST_PORT  (team: switch, channels: ap-intake, ap-release)"

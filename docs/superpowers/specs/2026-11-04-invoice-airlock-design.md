@@ -251,7 +251,7 @@ Agents write `treasury` and `courier` without `@` in these messages, so no messa
 
 ## 9. Commands
 
-`prove.sh` and `demo.sh` share `lib/stack.sh`. It downloads the upstream Compose file from the pinned tag, verifies its SHA-256 (`cba238878078cf3d77fd9e136ef432f1ce5fd1bfe597acd172b9faa6720f0121`), generates throwaway secrets into `.run/<project>/.env` (mode 600, git-ignored), and runs `docker compose` with the upstream file plus `deploy/compose.airlock.yaml`. Nothing from Switch is committed. Host requirements: Docker with Compose, bash and curl. Linux, macOS or WSL.
+`prove.sh` and `demo.sh` share `lib/stack.sh`. It downloads the upstream Compose file from the pinned tag, verifies its SHA-256 (`cba238878078cf3d77fd9e136ef432f1ce5fd1bfe597acd172b9faa6720f0121`), generates throwaway secrets into `.run/<project>/.env` (mode 600, git-ignored), and runs `docker compose` with the upstream file plus `deploy/compose.airlock.yaml`. It pulls images two at a time and retries up to five times, because finished layers stay cached and downloads were seen to drop on the VPS. Nothing from Switch is committed. Host requirements: Docker with Compose, bash and curl. Linux, macOS or WSL.
 
 **Ports are configurable and bound to loopback.**
 

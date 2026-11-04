@@ -9,6 +9,7 @@
 #                                   Creates the user and its limits, then runs verify.
 #   setup-build-user.sh verify      Checks the limits hold. Only pulls two small test images.
 #   setup-build-user.sh smoke       Runs the pinned Switch stack as the user, reports, tears it down.
+#   setup-build-user.sh deny PATH...  Denies the user these paths with an ACL. Nobody else's access changes.
 #   setup-build-user.sh uninstall   Removes everything install added, except the apt packages.
 #
 # What the user gets: its own home, rootless Docker, outbound internet, loopback ports
@@ -434,7 +435,7 @@ cmd_verify_inner() {
     \( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' -o -name 'id_rsa' -o -name 'id_ed25519' \
        -o -iname '*secret*' -o -iname '*credential*' -o -iname '*token*' \) \
     ! -path '/etc/ssl/*' ! -path '*/node_modules/*' ! -path '/var/lib/docker/*' ! -path '/var/lib/containerd/*' \
-    ! -path '/var/lib/dpkg/*' ! -path "$HOME_DIR/*" -perm -o=r 2>/dev/null | head -400 \
+    ! -path '/var/lib/dpkg/*' ! -path '*/site-packages/*' ! -path "$HOME_DIR/*" -perm -o=r 2>/dev/null | head -400 \
     | while read -r f; do as_build test -r "$f" && printf '        %s\n' "$f"; done || true
 }
 
@@ -494,6 +495,18 @@ services:
 YML
 compose() { docker compose -p airlock-smoke --profile collab --profile gateway --env-file .env -f compose.yml -f override.yml "$@"; }
 trap 'compose down -v --remove-orphans >/dev/null 2>&1 || true; cd /; rm -rf "$dir"' EXIT
+# Downloads can drop on a flaky link, and finished layers stay cached, so trying again gets there.
+export COMPOSE_PARALLEL_LIMIT=2
+pulled=0
+for attempt in 1 2 3 4 5; do
+  if compose pull --quiet; then pulled=1; break; fi
+  echo "  note  the image pull failed on attempt $attempt of 5, trying again"
+  sleep $((attempt * 5))
+done
+if [ "$pulled" != 1 ]; then
+  echo "  FAIL  could not pull the images after 5 attempts"
+  exit 1
+fi
 compose up -d
 wait_for() {
   local label="$1" url="$2" tries=0
@@ -523,12 +536,41 @@ EOF
   ok "smoke test finished, stack and volumes removed. Images stay cached for the build"
 }
 
+cmd_deny() {
+  need_root
+  need_user
+  [ $# -gt 0 ] || { echo "Usage: setup-build-user.sh deny PATH..." >&2; exit 2; }
+  if ! command -v setfacl >/dev/null 2>&1; then
+    DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=l NEEDRESTART_SUSPEND=1 \
+      apt-get install -y -qq --no-install-recommends acl
+  fi
+  mkdir -p "$STATE_DIR"
+  say "Denying $BUILD_USER these paths. Nobody else's access changes"
+  local target
+  for target in "$@"; do
+    if [ ! -e "$target" ]; then
+      bad "$target does not exist"
+      continue
+    fi
+    setfacl -m "u:$BUILD_USER:---" "$target"
+    grep -qxF "$target" "$STATE_DIR/denied" 2>/dev/null || echo "$target" >> "$STATE_DIR/denied"
+    if as_build test -r "$target"; then bad "$BUILD_USER can still read $target"; else ok "$BUILD_USER cannot read $target"; fi
+  done
+  [ "$FAILED" = 0 ] || exit 1
+}
+
 cmd_uninstall() {
   need_root
   printf 'This deletes the %s user, its home and its Docker data. Type the user name to go on: ' "$BUILD_USER"
   local answer
   read -r answer
   [ "$answer" = "$BUILD_USER" ] || { echo "Nothing changed."; exit 1; }
+  if [ -f "$STATE_DIR/denied" ]; then
+    while read -r target; do
+      setfacl -x "u:$BUILD_USER" "$target" 2>/dev/null || true
+    done < "$STATE_DIR/denied"
+    rm -f "$STATE_DIR/denied"
+  fi
   if id "$BUILD_USER" >/dev/null 2>&1; then
     local uid
     uid="$(id -u "$BUILD_USER")"
@@ -556,6 +598,7 @@ case "${1:-}" in
   install)   shift; cmd_install "$@" ;;
   verify)    shift; cmd_verify "$@" ;;
   smoke)     shift; cmd_smoke "$@" ;;
+  deny)      shift; cmd_deny "$@" ;;
   uninstall) shift; cmd_uninstall "$@" ;;
-  *) sed -n '2,12p' "$SCRIPT_PATH" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '2,13p' "$SCRIPT_PATH" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

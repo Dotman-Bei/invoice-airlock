@@ -400,7 +400,7 @@ Message: `feat: provision the people, agents and rooms`
 **Depends on:** Task 1.8, Task 2.2, Task 2.3, Task 2.4, Task 2.8, Task 3.1
 **Effort:** medium
 **Model tier:** top
-**Provides:** `lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS`, `Dockerfile targets: agents, reader, reader-model`, `deploy/compose.airlock.yaml services: provision, courier, treasury, mock-bank, reader, proof-runner (profile proof), reading AIRLOCK_OWNERS, EJECT_GRACE_MS, READER_MODE, READER_TARGET, READER_IMAGE, HIJACK_SET, HIJACK_PACE_MS, BANK_TOKEN, AIRLOCK_LEDGER_PORT. proof-runner mounts state_runner at /state and proof_out at /out, read-only`
+**Provides:** `lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS`, `Dockerfile targets: agents, reader, reader-model`, `deploy/compose.airlock.yaml services: provision, courier, treasury, mock-bank, reader, proof-runner (profile proof), reading AIRLOCK_OWNERS, EJECT_GRACE_MS, READER_MODE, READER_TARGET, READER_IMAGE, HIJACK_SET, HIJACK_PACE_MS, BANK_TOKEN, AIRLOCK_LEDGER_PORT. proof-runner mounts state_runner at /state and proof_out at /out, read-only`
 **Requires:** `the provision process: node src/provision/main.ts, which writes one volume per agent. Each agent mounts its own at /state and reads /state/agent.json. proof-runner reads /state/desk.json`, `the courier process: node src/courier/main.ts`, `the treasury process: node src/treasury/main.ts`, `the reader process: node src/reader/main.ts`, `POST /payments, GET /ledger.json, GET / on port 9000`, `fixtures/invoices/INV-1042.pdf, fixtures/invoices/INV-2091.pdf`, `fixtures/extractions/poisoned-sha256.txt`
 
 `reader` sits only on the internal `reader_net`, which it shares with `switch`, so it can reach nothing else. Only `treasury` and `mock-bank` get `BANK_TOKEN`. The upstream file is downloaded and its SHA-256 checked, and it is never committed.
@@ -424,7 +424,7 @@ fixtures/extractions/poisoned-sha256.txt
 ```ts
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -485,6 +485,29 @@ test('a busy port names the variable to change', async () => {
 
 test('free ports pass', () => {
   assert.equal(shell('stack_check_ports').code, 0);
+});
+
+test('a failed pull is tried again, and gives up after five attempts', () => {
+  const bin = join(runDir, 'fake-bin');
+  mkdirSync(bin);
+  const count = join(runDir, 'pull-count');
+  writeFileSync(join(bin, 'docker'), `#!/bin/sh\necho pull >> "${count}"\n[ "$(wc -l < "${count}")" -ge "$FAKE_PASS_AT" ]\n`, { mode: 0o755 });
+  const pull = (passAt: string) => {
+    rmSync(count, { force: true });
+    return spawnSync('bash', ['-c', '. lib/stack.sh; STACK_PROJECT=x; STACK_ENV=y; stack_pull'], {
+      encoding: 'utf8',
+      env: { ...process.env, ...ports, STACK_RUN_DIR: runDir, STACK_PULL_DELAY_S: '0', FAKE_PASS_AT: passAt, PATH: `${bin}:${process.env['PATH']}` },
+    });
+  };
+  const attempts = () => readFileSync(count, 'utf8').trim().split('\n').length;
+
+  assert.equal(pull('3').status, 0);
+  assert.equal(attempts(), 3);
+
+  const never = pull('99');
+  assert.equal(never.status, 1);
+  assert.match(never.stderr, /Could not pull the images/);
+  assert.equal(attempts(), 5);
 });
 
 test('a cached upstream file with the wrong bytes is not trusted', () => {
@@ -578,6 +601,20 @@ stack_compose() {
   docker compose -p "$STACK_PROJECT" --project-directory "$STACK_ROOT" --env-file "$STACK_ENV" \
     --profile collab --profile gateway \
     -f "$STACK_UPSTREAM" -f "$STACK_ROOT/deploy/compose.airlock.yaml" ${STACK_EXTRA_ARGS[@]+"${STACK_EXTRA_ARGS[@]}"} "$@"
+}
+
+# Downloads can drop on a flaky link, and finished layers stay cached, so trying again gets there.
+stack_pull() {
+  local attempt
+  for attempt in 1 2 3 4 5; do
+    if COMPOSE_PARALLEL_LIMIT=2 stack_compose pull --ignore-buildable --quiet; then
+      return 0
+    fi
+    echo "Pulling the images failed on attempt $attempt of 5." >&2
+    sleep "$((attempt * ${STACK_PULL_DELAY_S:-5}))"
+  done
+  echo "Could not pull the images. Check the network and run this again." >&2
+  return 1
 }
 
 # Says which variable to set rather than letting Compose fail on a busy port.
@@ -813,7 +850,7 @@ Message: `feat: add the Compose overlay and stack library`
 **Effort:** high
 **Model tier:** top
 **Provides:** `src/proof/world.ts: export type World = { desk: DeskState; bankUrl: string; admin: GatewaySession; controllerGateway: GatewaySession; clerk: MattermostSession; controller: MattermostSession; intakeChannel: string; releaseChannel: string; };`, `src/proof/world.ts: export async function openWorld(statePath: string, switchUrl: string, mattermostUrl: string, bankUrl: string): Promise<World>`, `src/proof/world.ts: export async function roomDetail(world: World, roomId: string): Promise<RoomDetail | null>`, `src/proof/world.ts: export async function roster(world: World, roomId: string): Promise<string[] | null>`, `src/proof/world.ts: export async function ledger(world: World): Promise<LedgerView | null>`, `src/proof/world.ts: export async function waitUntil(label: string, check: () => Promise<boolean>, budgetMs: number, log: (line: string) => void, stepMs = 500): Promise<boolean>`, `src/proof/world.ts: export async function waitForAgents(world: World, budgetMs: number, log: (line: string) => void): Promise<boolean>`
-**Requires:** `src/bank/ledger.ts: export type LedgerView = { opening_balance_cents: number; balance_cents: number; entries: LedgerEntry[] };`, `src/provision/desk-state.ts: export type DeskState = { owners: 'two' | 'single'; team: string; bridgeId: string; admin: { email: string; password: string }; people: { clerk: Person; controller: Person }; rooms: { intake: string; release: string }; agents: { reader: string; courier: string; treasury: string }; };`, `src/switch/gateway.ts: export class GatewaySession { constructor(baseUrl: string); login(email: string, password: string): Promise<HttpResult>; request(method: string, path: string, body?: unknown): Promise<HttpResult> }`, `src/switch/gateway.ts: export function must(result: HttpResult, label: string): Record<string, unknown>`, `src/switch/mattermost.ts: export class MattermostSession { userId; constructor(baseUrl: string); login(username: string, password: string): Promise<boolean>; request(method: string, path: string, body?: unknown): Promise<HttpResult>; channelId(team: string, channel: string): Promise<string | null>; postMessage(channelId: string, message: string, fileIds: string[] = []): Promise<string>; uploadAndPost(channelId: string, message: string, filename: string, bytes: Buffer): Promise<string>; posts(channelId: string): Promise<Post[]>; clientConfig(): Promise<Record<string, string>> }`, `src/switch/state.ts: export function requireEnv(name: string): string`, `deploy/compose.airlock.yaml services: provision, courier, treasury, mock-bank, reader, proof-runner (profile proof), reading AIRLOCK_OWNERS, EJECT_GRACE_MS, READER_MODE, READER_TARGET, READER_IMAGE, HIJACK_SET, HIJACK_PACE_MS, BANK_TOKEN, AIRLOCK_LEDGER_PORT. proof-runner mounts state_runner at /state and proof_out at /out, read-only`, `lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS`
+**Requires:** `src/bank/ledger.ts: export type LedgerView = { opening_balance_cents: number; balance_cents: number; entries: LedgerEntry[] };`, `src/provision/desk-state.ts: export type DeskState = { owners: 'two' | 'single'; team: string; bridgeId: string; admin: { email: string; password: string }; people: { clerk: Person; controller: Person }; rooms: { intake: string; release: string }; agents: { reader: string; courier: string; treasury: string }; };`, `src/switch/gateway.ts: export class GatewaySession { constructor(baseUrl: string); login(email: string, password: string): Promise<HttpResult>; request(method: string, path: string, body?: unknown): Promise<HttpResult> }`, `src/switch/gateway.ts: export function must(result: HttpResult, label: string): Record<string, unknown>`, `src/switch/mattermost.ts: export class MattermostSession { userId; constructor(baseUrl: string); login(username: string, password: string): Promise<boolean>; request(method: string, path: string, body?: unknown): Promise<HttpResult>; channelId(team: string, channel: string): Promise<string | null>; postMessage(channelId: string, message: string, fileIds: string[] = []): Promise<string>; uploadAndPost(channelId: string, message: string, filename: string, bytes: Buffer): Promise<string>; posts(channelId: string): Promise<Post[]>; clientConfig(): Promise<Record<string, string>> }`, `src/switch/state.ts: export function requireEnv(name: string): string`, `deploy/compose.airlock.yaml services: provision, courier, treasury, mock-bank, reader, proof-runner (profile proof), reading AIRLOCK_OWNERS, EJECT_GRACE_MS, READER_MODE, READER_TARGET, READER_IMAGE, HIJACK_SET, HIJACK_PACE_MS, BANK_TOKEN, AIRLOCK_LEDGER_PORT. proof-runner mounts state_runner at /state and proof_out at /out, read-only`, `lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS`
 
 This is the first Docker-gated task. The first run pulls Switch's images and can take over 10 minutes, so run the gate in the background with a long timeout. It proves four things that were only read in source: greetings can be turned off, an attachment downloads through the media route, a template creates a private room, and `MM_SERVICESETTINGS_COLLAPSEDTHREADS` takes effect. **If any of those is false, that is a plan bug, not an implementation miss. Report `RESULT: BLOCKED` with the check's output, so it goes back to the architect.**
 
@@ -827,7 +864,7 @@ src/switch/gateway.ts: export function must(result: HttpResult, label: string): 
 src/switch/mattermost.ts: export class MattermostSession { userId; constructor(baseUrl: string); login(username: string, password: string): Promise<boolean>; request(method: string, path: string, body?: unknown): Promise<HttpResult>; channelId(team: string, channel: string): Promise<string | null>; postMessage(channelId: string, message: string, fileIds: string[] = []): Promise<string>; uploadAndPost(channelId: string, message: string, filename: string, bytes: Buffer): Promise<string>; posts(channelId: string): Promise<Post[]>; clientConfig(): Promise<Record<string, string>> }
 src/switch/state.ts: export function requireEnv(name: string): string
 deploy/compose.airlock.yaml services: provision, courier, treasury, mock-bank, reader, proof-runner (profile proof), reading AIRLOCK_OWNERS, EJECT_GRACE_MS, READER_MODE, READER_TARGET, READER_IMAGE, HIJACK_SET, HIJACK_PACE_MS, BANK_TOKEN, AIRLOCK_LEDGER_PORT. proof-runner mounts state_runner at /state and proof_out at /out, read-only
-lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS
+lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS
 ```
 
 - [ ] **Step 1: Write the files**
@@ -990,6 +1027,7 @@ stack_write_env airlock-check
 stack_compose down -v --remove-orphans >/dev/null 2>&1
 stack_check_ports || exit 2
 
+stack_pull || exit 2
 if ! stack_compose up -d --build; then
   stack_compose ps -a
   stack_compose logs --tail=60

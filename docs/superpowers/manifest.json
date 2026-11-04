@@ -909,7 +909,7 @@
         ]
       },
       "provides": [
-        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS",
+        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS",
         "Dockerfile targets: agents, reader, reader-model",
         "deploy/compose.airlock.yaml services: provision, courier, treasury, mock-bank, reader, proof-runner (profile proof), reading AIRLOCK_OWNERS, EJECT_GRACE_MS, READER_MODE, READER_TARGET, READER_IMAGE, HIJACK_SET, HIJACK_PACE_MS, BANK_TOKEN, AIRLOCK_LEDGER_PORT. proof-runner mounts state_runner at /state and proof_out at /out, read-only"
       ],
@@ -971,7 +971,7 @@
         "src/switch/mattermost.ts: export class MattermostSession { userId; constructor(baseUrl: string); login(username: string, password: string): Promise<boolean>; request(method: string, path: string, body?: unknown): Promise<HttpResult>; channelId(team: string, channel: string): Promise<string | null>; postMessage(channelId: string, message: string, fileIds: string[] = []): Promise<string>; uploadAndPost(channelId: string, message: string, filename: string, bytes: Buffer): Promise<string>; posts(channelId: string): Promise<Post[]>; clientConfig(): Promise<Record<string, string>> }",
         "src/switch/state.ts: export function requireEnv(name: string): string",
         "deploy/compose.airlock.yaml services: provision, courier, treasury, mock-bank, reader, proof-runner (profile proof), reading AIRLOCK_OWNERS, EJECT_GRACE_MS, READER_MODE, READER_TARGET, READER_IMAGE, HIJACK_SET, HIJACK_PACE_MS, BANK_TOKEN, AIRLOCK_LEDGER_PORT. proof-runner mounts state_runner at /state and proof_out at /out, read-only",
-        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS"
+        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS"
       ],
       "gate": {
         "run": "npx tsc --noEmit && ./scripts/stack-check.sh",
@@ -1158,7 +1158,7 @@
         "lib/verdict.sh: verdict_code <runner exit code> <report.md> <report.json> prints 0, 1 or 2; verdict_names_breach <check id> <report.md>",
         "the proof-runner process: node src/proof/main.ts",
         "Report markers: AIRLOCK-REPORT-MD-BEGIN, AIRLOCK-REPORT-MD-END, AIRLOCK-REPORT-JSON",
-        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS"
+        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS"
       ],
       "gate": {
         "run": "./prove.sh",
@@ -1230,7 +1230,7 @@
       ],
       "requires": [
         "src/provision/desk-state.ts: export type DeskState = { owners: 'two' | 'single'; team: string; bridgeId: string; admin: { email: string; password: string }; people: { clerk: Person; controller: Person }; rooms: { intake: string; release: string }; agents: { reader: string; courier: string; treasury: string }; };",
-        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS",
+        "lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS",
         "Dockerfile targets: agents, reader, reader-model"
       ],
       "gate": {

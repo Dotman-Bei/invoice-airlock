@@ -965,7 +965,7 @@ Message: `feat: add the check that a verdict has a real report`
 **Effort:** medium
 **Model tier:** top
 **Provides:** `./prove.sh [--single-owner] [--keep], exit 0 contained, 1 attack succeeded or control failed, 2 no verdict`, `proof-output/report.md, proof-output/report.json`
-**Requires:** `lib/verdict.sh: verdict_code <runner exit code> <report.md> <report.json> prints 0, 1 or 2; verdict_names_breach <check id> <report.md>`, `the proof-runner process: node src/proof/main.ts`, `Report markers: AIRLOCK-REPORT-MD-BEGIN, AIRLOCK-REPORT-MD-END, AIRLOCK-REPORT-JSON`, `lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS`
+**Requires:** `lib/verdict.sh: verdict_code <runner exit code> <report.md> <report.json> prints 0, 1 or 2; verdict_names_breach <check id> <report.md>`, `the proof-runner process: node src/proof/main.ts`, `Report markers: AIRLOCK-REPORT-MD-BEGIN, AIRLOCK-REPORT-MD-END, AIRLOCK-REPORT-JSON`, `lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS`
 
 If an attack is breached or a check is inconclusive here, read `proof-output/report.md` and the logs. A mismatch between a rule in `assess` and what the running stack really says is a plan bug: report `RESULT: BLOCKED` with the evidence. **Never weaken an assertion to get this green.**
 
@@ -975,7 +975,7 @@ Upstream signatures, pasted from their providers:
 lib/verdict.sh: verdict_code <runner exit code> <report.md> <report.json> prints 0, 1 or 2; verdict_names_breach <check id> <report.md>
 the proof-runner process: node src/proof/main.ts
 Report markers: AIRLOCK-REPORT-MD-BEGIN, AIRLOCK-REPORT-MD-END, AIRLOCK-REPORT-JSON
-lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS
+lib/stack.sh: stack_require_docker; stack_fetch_upstream; stack_write_env <project>; stack_check_ports; stack_pull, which retries up to five times; stack_compose <compose args>, using STACK_ROOT, STACK_PROJECT, STACK_ENV and an optional array STACK_EXTRA_ARGS
 ```
 
 - [ ] **Step 1: Write the command**
@@ -1029,6 +1029,7 @@ teardown() {
 trap 'teardown; exit 2' INT TERM
 
 echo "Starting a fresh stack. The first run pulls Switch's images, so give it a few minutes."
+stack_pull || exit 2
 if ! stack_compose up -d --build; then
   stack_compose ps -a
   stack_compose logs --tail=40
