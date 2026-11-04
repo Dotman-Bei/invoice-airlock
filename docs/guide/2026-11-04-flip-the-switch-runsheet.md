@@ -14,7 +14,7 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 
 - `Dotman-Bei/flip-the-switch-2026`, private, pipeline-created by the guide. Local clone: `C:\Users\bamig\Documents\VIBE CODE\Hackathons\flip-the-switch-2026`.
 - Rename to the project slug when the project is named (idea-forge Step 4). Update this line and every later `REPO:` field.
-- Read-write deploy key `github-flipswitch` is on the repo for the user's VPS. Remove it at closing if no longer needed.
+- Read-write deploy key `github-flipswitch` is on the repo for the user's VPS, added by the user (confirmed 2026-11-04). Remove it at closing if no longer needed.
 
 ## Kit
 
@@ -60,7 +60,7 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 ## Switch route
 
 - **Correction 2026-11-04:** do not run the earlier prompt that installs Docker Desktop on the laptop. Docker's published minimum is build 22631 and the laptop is build 21996.
-- **Guide recommendation:** Switch Console on the laptop, server on the user's Ubuntu VPS. Needs the user's decision because the VPS runs other services: `127.0.0.1:8000` is taken, 4.1 GiB is available with no swap, and Docker is not installed there.
+- **Decision (user, 2026-11-04):** Switch runs on the user's Ubuntu VPS, with Switch Console on the laptop if it opens. The VPS runs other services that must stay up: `127.0.0.1:8000` is taken, 4.1 GiB was available with no swap, and Docker was not installed at the probe.
 - **First test:** install Switch Console on the laptop to learn whether #1441 applies. The route after that depends on the result.
 - **Fallbacks:** a separate small VPS if the user will not risk the current one. Compose plus Gateway if Console will not open.
 
