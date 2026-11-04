@@ -24,7 +24,7 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 ## Tollgate
 
 - Report: `docs/tollgate/2026-11-04-tollgate.md`, from Step 0a Stage 0, extended by a VPS probe.
-- **Verdicts:** 0a CLEAR · 0 CLEAR · 1 BLOCKED (C2 Switch Console, C3 Switch server) · 2 BLOCKED (C2, C3; stack rows not written) · 2.5 BLOCKED (row 10 ffmpeg; row 6 computer use to re-probe) · 3 CLEAR on that session's probes, re-probe row 5.
+- **Verdicts:** 0a CLEAR · 0 CLEAR · 1 BLOCKED (C3 Switch server) · 2 BLOCKED (C3; stack rows not written) · 2.5 BLOCKED (row 10 ffmpeg; row 6 computer use to re-probe) · 3 CLEAR on that session's probes, re-probe row 5.
 - Routing: `per-spawn`; opus, sonnet and haiku resolve to `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`. No warnings.
 - `gh` is not on the VS Code PATH. Kickoffs carry `C:\Users\bamig\AppData\Local\Programs\GitHub CLI\bin\gh.exe`.
 
@@ -65,7 +65,7 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 - **Decision (user, 2026-11-04):** Switch runs on the user's Ubuntu VPS, with Switch Console on the laptop if it opens. The VPS runs other services that must stay up: `127.0.0.1:8000` is taken, 4.1 GiB was available with no swap, and Docker was not installed at the probe.
 - **VPS state (verified from the committed report, 2026-11-04):** Docker and swap are ready, existing services were undisturbed, about 3.6 GiB available plus 4 GiB swap. Switch is not installed or started. C1 passes on the VPS.
 - **Before the server starts:** VPS sessions run as root. Don't run Switch agents as root on a machine with other services; set up a dedicated non-root user first, with its own `claude` sign-in.
-- **Route per the brief:** standalone Docker Compose with `collab` and `gateway` on the VPS, because the two-owner design needs a second Switch user. Console may not be needed, which would make #1441 and #1335 moot. Relaxing C2 is the user's call; question open.
+- **Route per the brief:** standalone Docker Compose with `collab` and `gateway` on the VPS, because the two-owner design needs a second Switch user. The user relaxed C2 (Switch Console) from hard to degraded on 2026-11-04, so #1441 and #1335 stop mattering. It returns to hard only if the runtime checks show linking accounts requires Console.
 - **Build location:** the laptop has no Docker, and the kit is not on the VPS. Decide at Step 1 where Docker-gated tasks and the orchestrator run; the Stack rows must reflect it.
 - **Fallbacks:** a separate small VPS if the user will not risk the current one. Compose plus Gateway if Console will not open.
 
@@ -99,8 +99,8 @@ The user runs the server-and-runtime-checks prompt in a tab on the VPS (`opus` +
 
 ## Open blockers
 
-1. Switch route not proven (C2, C3). Blocks Steps 1 and 2.
-2. The brief needs a clerk and a controller, and the form asks for a real chat with teammates. User to decide who plays the second person in the demo.
+1. Switch server not running (C3). Blocks Steps 1 and 2.
+2. Demo cast decided by the user 2026-11-04: the user plays both the clerk and the controller, on two Switch accounts. The form asks for a real chat with teammates, so the architect, demo script and README must say plainly that one person plays both roles. Check 5 (telling two people apart) still matters.
 3. ffmpeg missing. Blocks 2.5; fix before the demo.
 4. Wispr Flow not installed (C5). Blocks only that side track, but usage should start now.
 5. Before the orchestrator kickoff: hand over the prompt that copies `references/agents/executor-*.md` to `.claude/agents/`.
