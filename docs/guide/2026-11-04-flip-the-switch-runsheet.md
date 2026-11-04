@@ -30,7 +30,7 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 
 ## Goal
 
-- Win Track 01 (Best Business Workflow) and also target Track 02 (Best Personal or Creative Workflow), plus the side tracks below. Track 02 added by the user 2026-11-04.
+- Win Track 01 (Best Business Workflow), plus the side tracks below. Confirmed by the user 2026-11-04, after briefly adding and then dropping Track 02.
 
 ## Calendar
 
@@ -50,11 +50,10 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 - **Steps:** 0a, 0, 1, 2, 2.5, 3 (preflight and closing). 2.5 stays because a demo video is mandatory.
 - **Tracks:**
   1. Track 01 Best Business Workflow, `$2,000` on WeMakeDevs, "to be announced" on DevTools Academy: the user's confirmed goal.
-  2. Track 02 Best Personal or Creative Workflow, same prize status: the user's second target. Whether one project may enter both is unresolved (event.md question 6). One project, one brief; Track 01 stays primary if the two pull apart.
-  3. Code with Wispr, `$500`: stacks on any track; needs a Wispr Flow scorecard, and Flow is not installed yet.
-- **Best Blog, AirPods 5:** still entered, but left out of idea-forge's TRACKS field (max 3) because it stacks on any project and does not shape the idea.
+  2. Code with Wispr, `$500`: stacks on any track; needs a Wispr Flow scorecard, and Flow is not installed yet.
+  3. Best Blog, AirPods 5: stacks on any track; low effort from project material.
 - **Correction 2026-11-04:** the guide first cited the docs' payments room as a Stellar skills fit. The pack shows it is about setting up a payments team's channel, not moving money, and the event has no blockchain component. Track 01 stands on the user's goal, not on that reason. Web3 skills get used only if the rubric picks an idea that needs them.
-- **Dropped:** Track 03: all 63 open `hackathon` issues already have assignees.
+- **Dropped:** Track 03: all 63 open `hackathon` issues already have assignees. Track 02: the user chose to focus on Track 01.
 - **Risk appetite:** `safe-feasible`. 55% of the score rewards Switch centrality and reproducible execution, the runway is short, and Switch is new to the user.
 - **Event rule:** Official Rules §3 prohibit bots, scripts and automated agents for registration or submission. Registration and Submit stay human, with signup automation struck for event accounts.
 
