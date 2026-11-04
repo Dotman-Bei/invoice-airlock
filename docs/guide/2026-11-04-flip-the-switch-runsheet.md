@@ -32,11 +32,11 @@ Last updated: 2026-11-04 by the guide seat. Facts below come from a guide-level 
 
 ## Goal
 
-- ASSUMED, the user left this as template text: win Track 01 (Best Business Workflow, $2,000), plus the side tracks below. Awaiting confirmation.
+- Win Track 01 (Best Business Workflow, $2,000), plus the side tracks below. Confirmed by the user 2026-11-04.
 
 ## Calendar
 
-- Deadline known. User's available hours left as template text. Awaiting confirmation.
+- User has 70 hours available, out of about 78 left at 2026-11-04 12:17 UTC. That leaves about 8 hours off in total, so plan sleep into the autonomous build stretches and use `autonomous` review mode overnight. Calendar-fit call on the winning idea assumes the user's attention is the scarce resource, not the 70 hours.
 
 | Target (UTC+1) | Milestone |
 |---|---|
@@ -83,11 +83,14 @@ Last updated: 2026-11-04 by the guide seat. Facts below come from a guide-level 
 
 The user connects Chrome with `/chrome`, opens a new tab in a VS Code window on this repo, sets `opus` + `high`, and pastes the Step 0a kickoff.
 
+## Done by the user
+
+- 2026-11-04: signed up on the event page, starred the Switch repo, joined the Discord (user-reported).
+
 ## Open blockers
 
 1. Chrome tools not connected (row 5). Blocks 0a and 3; fix with `/chrome`.
 2. Docker engine missing, WSL2 kernel missing, early-access Windows Console, Insider OS build. Blocks 1 and 2 until Switch runs here or a remote-server fallback is chosen.
 3. ffmpeg missing. Blocks 2.5; fix before the demo.
-4. User to confirm goal and available hours.
-5. Hackathon registration is the user's to do. Submission location is not stated on the pages read; 0a to find it, otherwise ask in Discord.
-6. Before the orchestrator kickoff: hand over the prompt that copies `references/agents/executor-*.md` to `.claude/agents/`.
+4. Submission location is not stated on the pages read; 0a to find it, otherwise ask in Discord.
+5. Before the orchestrator kickoff: hand over the prompt that copies `references/agents/executor-*.md` to `.claude/agents/`.
