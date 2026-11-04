@@ -1,6 +1,6 @@
 # Runsheet: Flip the Switch Hackathon
 
-Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/resources/2026-11-04-flip-the-switch/` is the source for event facts.
+Last updated: 2026-11-04 18:22 UTC by the guide seat. The Step 0a pack at `docs/resources/2026-11-04-flip-the-switch/` is the source for event facts.
 
 ## Event
 
@@ -68,7 +68,8 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 - **Route per the brief:** standalone Docker Compose with `collab` and `gateway` on the VPS, because the two-owner design needs a second Switch user. The user relaxed C2 (Switch Console) from hard to degraded on 2026-11-04, so #1441 and #1335 stop mattering. It returns to hard only if the runtime checks show linking accounts requires Console.
 - **Server (from the committed report, 3e9e6b3; the guide did not re-run it):** Switch 0.31.0 runs on the VPS under non-root user `switch`, loopback only: API 18000, Gateway 13000, Mattermost 18065, Postgres 15432. Stack idle about 441 MiB, about 3.7 GiB available, swap 750 MiB; agents and model load not measured. The stack has no restart policy, so it stays down after a host reboot until `docker compose up -d`.
 - **Runtime results:** the two-owner containment held; no attack reached `treasury`. Money-shot changes needed: refusals hide behind "1 reply" unless `CollapsedThreads` is disabled, and the ejection doesn't show in Mattermost, so the courier must announce it. The architect plans from these findings.
-- **Build location:** the laptop has no Docker, and the kit is not on the VPS. Decide at Step 1 where Docker-gated tasks and the orchestrator run; the Stack rows must reflect it. Docker group access is root-equivalent and other services share the host, so the user approves any model agent's access to it at the design gate.
+- **Build location (user-approved at the design gate, spec section 11):** on the VPS, under new OS user `airlock-build`, with rootless Docker, no sudo, and a firewall chain that only that user's packets enter. Install and smoke are user-reported as passed. The setup also added a host-wide AppArmor profile for rootlesskit; `setup-build-user.sh uninstall` removes it and the user.
+- **Conflict the guide raised 2026-11-04:** the spec says the orchestrator runs over plain SSH in `tmux`, and the user's standing rule is chat panel only, no terminal. Guide recommendation: VS Code Remote-SSH as `airlock-build`, with the laptop kept on and connected. This is untested: that user's firewall refuses loopback ports outside 23000-29999, which can block the VS Code server's random port, so the window pins it with `remote.SSH.serverPickPortsFromRange`. `tmux` over a terminal is the fallback.
 - **Fallbacks:** a separate small VPS if the user will not risk the current one. Compose plus Gateway if Console will not open.
 
 ## Frontend directive
@@ -85,15 +86,15 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 | Guide | open | this runsheet | n/a | `claude-opus-5-5`, stated; above the `standard` row, allowed. Effort `high`, per the prompt |
 | 0a resource-extractor | done | `docs/resources/2026-11-04-flip-the-switch/` at 8efb5b4 | Passed by the guide 2026-11-04. Pushed; no secrets found by pattern scan; kit untouched; Switch deep, Wispr requirements. Weights match live DevTools Academy; WeMakeDevs 0% in fetched text matches the pack's count-up explanation (guide did not render it in Chrome). `submission_mode: none` confirmed live. Deviation accepted: rule prose is paraphrased, numbers are exact | `claude-opus-5-5`, stated; `high` per the kickoff |
 | 0 idea-forge | done | `docs/idea-forge/2026-11-04-invoice-airlock-brief.md` at a463591 | Passed by the guide 2026-11-04. Pushed; all fields present, including feasibility notes; repo renamed; target tracks correct; no secrets found by pattern scan. Spot-checked at tag `switch-v0.31.0`: named files, `require_same_owner`, the refusal text, `API_HOST_PORT`, the modified Commons Clause all exist. Behavior not run. Stale line accepted: "form is still off" | `opus` + `max` per the kickoff; model id not seen by the guide |
-| 1 architect | next | | Tollgate CLEAR; kickoff handed over 2026-11-04 | set `opus` + `xhigh`, on the laptop |
-| 2 orchestrator | blocked | | stack rows | |
+| 1 architect | one fix open | spec, 7 plans, 35-task manifest, `docs/FRONTEND.md`, submission draft, Stack rows at deb2911 | Guide 2026-11-04: pushed; 6 Stage-4 checks re-run by script and clean (DAG, requires, manifest/plan equality, effort, human gates, tier pins); all 12 form fields answered against the live form; no secrets found by pattern scan; setup script read in full; design skill hash matches after normalising line endings. Plans spot-read, not all 8,000 lines; tests not re-run; smoke user-reported. **Failed one check:** the static page's button says `Run attack` but shows hardcoded text, with no disclosure. Sent back to an architect session | Ran on VPS as root, user-approved for planning only (spec section 17) |
+| 2 orchestrator | blocked | | Page fix, then deploy key, clone, skill copy, Claude sign-in as `airlock-build` | set `opus` + `high`, on the VPS as `airlock-build` |
 | 2.5 demo-studio | blocked | | row 10 | |
 | 3 gate-concierge preflight | pending | | | |
 | 3 gate-concierge closing | pending | | | |
 
 ## Next action
 
-The user runs the architect kickoff in a new laptop tab (`opus` + `xhigh`), answers its questions, and approves the design. The guide then verifies spec, plans, manifest, `docs/FRONTEND.md`, submission draft and Stack rows.
+The user runs the page-fix kickoff in a new laptop tab (`opus` + `xhigh`). The guide verifies it, then hands over one laptop prompt (SSH host entry, VS Code port range, executor copy, deploy key, clone, skill copy, stack probes), then the orchestrator kickoff, recommended `autonomous` given the user's sleep, and the preflight kickoff.
 
 ## Done by the user
 
@@ -106,4 +107,6 @@ The user runs the architect kickoff in a new laptop tab (`opus` + `xhigh`), answ
 3. ffmpeg missing. Blocks 2.5; fix before the demo.
 4. Wispr Flow not installed (C5). Blocks only that side track, but usage should start now.
 5. Before the orchestrator kickoff: hand over the prompt that copies `references/agents/executor-*.md` to `.claude/agents/`.
+7. Task `demo:5.3` uses terminal commands (`claude setup-token`, `ssh -L`). Find a chat-panel path before that gate. VS Code's Ports panel can replace the tunnel; the token must never pass through chat.
+8. At closing: remove both write deploy keys if no longer needed (`github-flipswitch`, and the `airlock-build` key, which can also force-push). Run `setup-build-user.sh uninstall` if the user wants the VPS back as it was.
 6. Before the repo goes public: scrub machine details from the tollgate report and pack (laptop and VPS hostnames, the VPS service name and key path, the browser extension list).
