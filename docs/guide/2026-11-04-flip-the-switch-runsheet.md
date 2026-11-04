@@ -24,7 +24,7 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 ## Tollgate
 
 - Report: `docs/tollgate/2026-11-04-tollgate.md`, from Step 0a Stage 0, extended by a VPS probe.
-- **Verdicts:** 0a CLEAR · 0 CLEAR · 1 BLOCKED (C3 Switch server) · 2 BLOCKED (C3; stack rows not written) · 2.5 BLOCKED (row 10 ffmpeg; row 6 computer use to re-probe) · 3 CLEAR on that session's probes, re-probe row 5.
+- **Verdicts:** 0a CLEAR · 0 CLEAR · 1 CLEAR · 2 BLOCKED (stack rows not written) · 2.5 BLOCKED (row 10 ffmpeg; row 6 computer use to re-probe) · 3 CLEAR on that session's probes, re-probe row 5.
 - Routing: `per-spawn`; opus, sonnet and haiku resolve to `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`. No warnings.
 - `gh` is not on the VS Code PATH. Kickoffs carry `C:\Users\bamig\AppData\Local\Programs\GitHub CLI\bin\gh.exe`.
 
@@ -66,7 +66,9 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 - **VPS state (verified from the committed report, 2026-11-04):** Docker and swap are ready, existing services were undisturbed, about 3.6 GiB available plus 4 GiB swap. Switch is not installed or started. C1 passes on the VPS.
 - **Before the server starts:** VPS sessions run as root. Don't run Switch agents as root on a machine with other services; set up a dedicated non-root user first, with its own `claude` sign-in.
 - **Route per the brief:** standalone Docker Compose with `collab` and `gateway` on the VPS, because the two-owner design needs a second Switch user. The user relaxed C2 (Switch Console) from hard to degraded on 2026-11-04, so #1441 and #1335 stop mattering. It returns to hard only if the runtime checks show linking accounts requires Console.
-- **Build location:** the laptop has no Docker, and the kit is not on the VPS. Decide at Step 1 where Docker-gated tasks and the orchestrator run; the Stack rows must reflect it.
+- **Server (from the committed report, 3e9e6b3; the guide did not re-run it):** Switch 0.31.0 runs on the VPS under non-root user `switch`, loopback only: API 18000, Gateway 13000, Mattermost 18065, Postgres 15432. Stack idle about 441 MiB, about 3.7 GiB available, swap 750 MiB; agents and model load not measured. The stack has no restart policy, so it stays down after a host reboot until `docker compose up -d`.
+- **Runtime results:** the two-owner containment held; no attack reached `treasury`. Money-shot changes needed: refusals hide behind "1 reply" unless `CollapsedThreads` is disabled, and the ejection doesn't show in Mattermost, so the courier must announce it. The architect plans from these findings.
+- **Build location:** the laptop has no Docker, and the kit is not on the VPS. Decide at Step 1 where Docker-gated tasks and the orchestrator run; the Stack rows must reflect it. Docker group access is root-equivalent and other services share the host, so the user approves any model agent's access to it at the design gate.
 - **Fallbacks:** a separate small VPS if the user will not risk the current one. Compose plus Gateway if Console will not open.
 
 ## Frontend directive
@@ -83,15 +85,15 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 | Guide | open | this runsheet | n/a | `claude-opus-5-5`, stated; above the `standard` row, allowed. Effort `high`, per the prompt |
 | 0a resource-extractor | done | `docs/resources/2026-11-04-flip-the-switch/` at 8efb5b4 | Passed by the guide 2026-11-04. Pushed; no secrets found by pattern scan; kit untouched; Switch deep, Wispr requirements. Weights match live DevTools Academy; WeMakeDevs 0% in fetched text matches the pack's count-up explanation (guide did not render it in Chrome). `submission_mode: none` confirmed live. Deviation accepted: rule prose is paraphrased, numbers are exact | `claude-opus-5-5`, stated; `high` per the kickoff |
 | 0 idea-forge | done | `docs/idea-forge/2026-11-04-invoice-airlock-brief.md` at a463591 | Passed by the guide 2026-11-04. Pushed; all fields present, including feasibility notes; repo renamed; target tracks correct; no secrets found by pattern scan. Spot-checked at tag `switch-v0.31.0`: named files, `require_same_owner`, the refusal text, `API_HOST_PORT`, the modified Commons Clause all exist. Behavior not run. Stale line accepted: "form is still off" | `opus` + `max` per the kickoff; model id not seen by the guide |
-| 1 architect | blocked | | C1, C2, C3 | |
-| 2 orchestrator | blocked | | C1, C2, C3 | |
+| 1 architect | next | | Tollgate CLEAR; kickoff handed over 2026-11-04 | set `opus` + `xhigh`, on the laptop |
+| 2 orchestrator | blocked | | stack rows | |
 | 2.5 demo-studio | blocked | | row 10 | |
 | 3 gate-concierge preflight | pending | | | |
 | 3 gate-concierge closing | pending | | | |
 
 ## Next action
 
-The user runs the server-and-runtime-checks prompt in a tab on the VPS (`opus` + `high`). The guide then verifies C3 and the six runtime checks and hands over the architect kickoff, which adds the KIT line and the frontend directive to idea-forge's block.
+The user runs the architect kickoff in a new laptop tab (`opus` + `xhigh`), answers its questions, and approves the design. The guide then verifies spec, plans, manifest, `docs/FRONTEND.md`, submission draft and Stack rows.
 
 ## Done by the user
 
@@ -99,7 +101,7 @@ The user runs the server-and-runtime-checks prompt in a tab on the VPS (`opus` +
 
 ## Open blockers
 
-1. Switch server not running (C3). Blocks Steps 1 and 2.
+1. `reader` needs its own non-root OS user or container on the VPS, and a model sign-in the user does personally. No model agent runs as `switch`.
 2. Demo cast decided by the user 2026-11-04: the user plays both the clerk and the controller, on two Switch accounts. The form asks for a real chat with teammates, so the architect, demo script and README must say plainly that one person plays both roles. Check 5 (telling two people apart) still matters.
 3. ffmpeg missing. Blocks 2.5; fix before the demo.
 4. Wispr Flow not installed (C5). Blocks only that side track, but usage should start now.
