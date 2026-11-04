@@ -9,11 +9,11 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 - **Deadline:** Sat 2026-11-07 23:59 IST = 18:29 UTC = 19:29 UTC+1.
 - **Judging:** Use of Switch 30% · Technical execution 25% · Creativity and impact 25% · Presentation and documentation 20%.
 - **Must ship:** repo, demo video, README. Switch must be central. The Switch setup and the workflow must be built during the hackathon; existing agents, libraries and templates are fine.
+- **Submission form opened 2026-11-04 14:25 UTC** (`submission_mode: form`, public GET `https://wemakedevs-server.onrender.com/hackathons/switch`, field `submission_questions`). This supersedes pack question 4 and the brief's "form is still off" line. Required: project title; tracks (checkboxes, "Best Business Workflow" for us); description (problem, and who it's for); public GitHub repo with a setup README; demo video **under 3 minutes**, on YouTube or Loom, public or unlisted, showing "the agent working in a real chat with your teammates"; how you used Switch (agent, platforms, real work, how teammates work with it); what you liked and would improve. Optional: live demo, blog post, Wispr usage card (Insights, Your usage, Share), #HowISwitch post. Everyone who submits is considered for Code with Wispr if the card is uploaded.
 
 ## Project repo
 
-- `Dotman-Bei/flip-the-switch-2026`, private, pipeline-created by the guide. Local clone: `C:\Users\bamig\Documents\VIBE CODE\Hackathons\flip-the-switch-2026`.
-- Rename to the project slug when the project is named (idea-forge Step 4). Update this line and every later `REPO:` field.
+- `Dotman-Bei/invoice-airlock`, private, pipeline-created by the guide as `flip-the-switch-2026` and renamed by idea-forge on 2026-11-04. Local clone keeps its folder name: `C:\Users\bamig\Documents\VIBE CODE\Hackathons\flip-the-switch-2026`.
 - Read-write deploy key `github-flipswitch` is on the repo for the user's VPS, added by the user (confirmed 2026-11-04). Remove it at closing if no longer needed.
 
 ## Kit
@@ -35,6 +35,8 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 ## Calendar
 
 - User has 70 hours available, out of about 78 left at 2026-11-04 12:17 UTC. That leaves about 8 hours off in total, so plan sleep into the autonomous build stretches and use `autonomous` review mode overnight. Calendar-fit call on the winning idea assumes the user's attention is the scarce resource, not the 70 hours.
+
+**Calendar-fit call on Invoice Airlock (guide, 2026-11-04 14:30 UTC, about 76 hours left): it fits.** The scope is small and self-contained: one server, two rooms, three small agents, a mock bank, a proof command, with no external dependency. The real risk is whether Switch behaves at runtime as the source reads, so that gets tested before Step 1. If two owners fail, the brief's own fallback drops attack 3. Feature freeze stays Fri 22:00. Video length is under 3 minutes, not the kit's default of about 3:00.
 
 | Target (UTC+1) | Milestone |
 |---|---|
@@ -63,7 +65,8 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 - **Decision (user, 2026-11-04):** Switch runs on the user's Ubuntu VPS, with Switch Console on the laptop if it opens. The VPS runs other services that must stay up: `127.0.0.1:8000` is taken, 4.1 GiB was available with no swap, and Docker was not installed at the probe.
 - **VPS state (verified from the committed report, 2026-11-04):** Docker and swap are ready, existing services were undisturbed, about 3.6 GiB available plus 4 GiB swap. Switch is not installed or started. C1 passes on the VPS.
 - **Before the server starts:** VPS sessions run as root. Don't run Switch agents as root on a machine with other services; set up a dedicated non-root user first, with its own `claude` sign-in.
-- **First test:** install Switch Console on the laptop to learn whether #1441 applies. The route after that depends on the result.
+- **Route per the brief:** standalone Docker Compose with `collab` and `gateway` on the VPS, because the two-owner design needs a second Switch user. Console may not be needed, which would make #1441 and #1335 moot. Relaxing C2 is the user's call; question open.
+- **Build location:** the laptop has no Docker, and the kit is not on the VPS. Decide at Step 1 where Docker-gated tasks and the orchestrator run; the Stack rows must reflect it.
 - **Fallbacks:** a separate small VPS if the user will not risk the current one. Compose plus Gateway if Console will not open.
 
 ## Frontend directive
@@ -79,7 +82,7 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 |---|---|---|---|---|
 | Guide | open | this runsheet | n/a | `claude-opus-5-5`, stated; above the `standard` row, allowed. Effort `high`, per the prompt |
 | 0a resource-extractor | done | `docs/resources/2026-11-04-flip-the-switch/` at 8efb5b4 | Passed by the guide 2026-11-04. Pushed; no secrets found by pattern scan; kit untouched; Switch deep, Wispr requirements. Weights match live DevTools Academy; WeMakeDevs 0% in fetched text matches the pack's count-up explanation (guide did not render it in Chrome). `submission_mode: none` confirmed live. Deviation accepted: rule prose is paraphrased, numbers are exact | `claude-opus-5-5`, stated; `high` per the kickoff |
-| 0 idea-forge | next | | | set `opus` + `max` |
+| 0 idea-forge | done | `docs/idea-forge/2026-11-04-invoice-airlock-brief.md` at a463591 | Passed by the guide 2026-11-04. Pushed; all fields present, including feasibility notes; repo renamed; target tracks correct; no secrets found by pattern scan. Spot-checked at tag `switch-v0.31.0`: named files, `require_same_owner`, the refusal text, `API_HOST_PORT`, the modified Commons Clause all exist. Behavior not run. Stale line accepted: "form is still off" | `opus` + `max` per the kickoff; model id not seen by the guide |
 | 1 architect | blocked | | C1, C2, C3 | |
 | 2 orchestrator | blocked | | C1, C2, C3 | |
 | 2.5 demo-studio | blocked | | row 10 | |
@@ -88,7 +91,7 @@ Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/
 
 ## Next action
 
-The user pastes the idea-forge kickoff in a new tab (`opus` + `max`), and in parallel installs Switch Console on the laptop in a throwaway tab and posts the submission question in Discord.
+The user runs the server-and-runtime-checks prompt in a tab on the VPS (`opus` + `high`). The guide then verifies C3 and the six runtime checks and hands over the architect kickoff, which adds the KIT line and the frontend directive to idea-forge's block.
 
 ## Done by the user
 
@@ -97,7 +100,7 @@ The user pastes the idea-forge kickoff in a new tab (`opus` + `max`), and in par
 ## Open blockers
 
 1. Switch route not proven (C2, C3). Blocks Steps 1 and 2.
-2. Submission form is off (`submission_mode: none`). User to ask in Discord today; recheck the API.
+2. The brief needs a clerk and a controller, and the form asks for a real chat with teammates. User to decide who plays the second person in the demo.
 3. ffmpeg missing. Blocks 2.5; fix before the demo.
 4. Wispr Flow not installed (C5). Blocks only that side track, but usage should start now.
 5. Before the orchestrator kickoff: hand over the prompt that copies `references/agents/executor-*.md` to `.claude/agents/`.
