@@ -111,6 +111,21 @@ Issues #1441 and #1158 were read (body or title), and #944, #1071, #1072 and #10
 | GitHub repo search, "flip the switch hackathon" | `gh search repos` | Competitors in `prior-art.md`; a sample |
 | Web searches on kickoff, submissions and past winners | WebSearch | Nothing usable on submission or kickoff |
 
+## Re-verified
+
+A second session re-checked these against live sources on 2026-11-04, from the VPS. All matched. The rest of the pack was read for consistency but not re-fetched.
+
+| Fact | Tool | Result |
+|---|---|---|
+| Weights 30/25/25/20 on WMD | Chrome, scrolled to `#judging` | Match |
+| Weights 30/25/25/20 on DTA | curl, static HTML | Match |
+| `submission_mode`, `submission_questions`, `submissions_close_at`, `end_date`, `max_team_size`, `updated_at` | curl, public API (S6) | Match, unchanged |
+| `/submit` says registrations only | Chrome, signed in, no form touched | Match |
+| DTA "Prize to be announced"; WMD Track 03 `$100 × 20` | curl; Chrome | Match |
+| Latest stable Console `switch-console-v0.40.1`, 2026-10-21 | GitHub public API | Match |
+| #1335 open with 21 comments; #1441 open | GitHub public API | Match |
+| Remote host requirements (S23) | curl, `deploy/host-remotely` | Match |
+
 ## Gaps
 
 | Gap | Why | What would close it |
