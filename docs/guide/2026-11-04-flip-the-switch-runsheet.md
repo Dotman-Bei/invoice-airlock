@@ -1,6 +1,6 @@
 # Runsheet: Flip the Switch Hackathon
 
-Last updated: 2026-11-04 18:22 UTC by the guide seat. The Step 0a pack at `docs/resources/2026-11-04-flip-the-switch/` is the source for event facts.
+Last updated: 2026-11-04 18:41 UTC by the guide seat. The Step 0a pack at `docs/resources/2026-11-04-flip-the-switch/` is the source for event facts.
 
 ## Event
 
@@ -86,15 +86,15 @@ Last updated: 2026-11-04 18:22 UTC by the guide seat. The Step 0a pack at `docs/
 | Guide | open | this runsheet | n/a | `claude-opus-5-5`, stated; above the `standard` row, allowed. Effort `high`, per the prompt |
 | 0a resource-extractor | done | `docs/resources/2026-11-04-flip-the-switch/` at 8efb5b4 | Passed by the guide 2026-11-04. Pushed; no secrets found by pattern scan; kit untouched; Switch deep, Wispr requirements. Weights match live DevTools Academy; WeMakeDevs 0% in fetched text matches the pack's count-up explanation (guide did not render it in Chrome). `submission_mode: none` confirmed live. Deviation accepted: rule prose is paraphrased, numbers are exact | `claude-opus-5-5`, stated; `high` per the kickoff |
 | 0 idea-forge | done | `docs/idea-forge/2026-11-04-invoice-airlock-brief.md` at a463591 | Passed by the guide 2026-11-04. Pushed; all fields present, including feasibility notes; repo renamed; target tracks correct; no secrets found by pattern scan. Spot-checked at tag `switch-v0.31.0`: named files, `require_same_owner`, the refusal text, `API_HOST_PORT`, the modified Commons Clause all exist. Behavior not run. Stale line accepted: "form is still off" | `opus` + `max` per the kickoff; model id not seen by the guide |
-| 1 architect | one fix open | spec, 7 plans, 35-task manifest, `docs/FRONTEND.md`, submission draft, Stack rows at deb2911 | Guide 2026-11-04: pushed; 6 Stage-4 checks re-run by script and clean (DAG, requires, manifest/plan equality, effort, human gates, tier pins); all 12 form fields answered against the live form; no secrets found by pattern scan; setup script read in full; design skill hash matches after normalising line endings. Plans spot-read, not all 8,000 lines; tests not re-run; smoke user-reported. **Failed one check:** the static page's button says `Run attack` but shows hardcoded text, with no disclosure. Sent back to an architect session | Ran on VPS as root, user-approved for planning only (spec section 17) |
-| 2 orchestrator | blocked | | Page fix, then deploy key, clone, skill copy, Claude sign-in as `airlock-build` | set `opus` + `high`, on the VPS as `airlock-build` |
+| 1 architect | done | spec, 7 plans, 35-task manifest, `docs/FRONTEND.md`, submission draft, Stack rows at deb2911 | Guide 2026-11-04: pushed; 6 Stage-4 checks re-run by script and clean (DAG, requires, manifest/plan equality, effort, human gates, tier pins); all 12 form fields answered against the live form; no secrets found by pattern scan; setup script read in full; design skill hash matches after normalising line endings. Plans spot-read, not all 8,000 lines; tests not re-run; smoke user-reported. The static page's button said `Run attack` over hardcoded text. Fixed in a233b6d by an architect session: the panel says it is a replay, and task 7.2's test ties each answer to the recorded report. Checks re-run clean by the guide | Ran on VPS as root, user-approved for planning only (spec section 17) |
+| 2 orchestrator | blocked | | Deploy key, clone, skill copy, Claude sign-in as `airlock-build` | set `opus` + `high`, on the VPS as `airlock-build` |
 | 2.5 demo-studio | blocked | | row 10 | |
 | 3 gate-concierge preflight | pending | | | |
 | 3 gate-concierge closing | pending | | | |
 
 ## Next action
 
-The user runs the page-fix kickoff in a new laptop tab (`opus` + `xhigh`). The guide verifies it, then hands over one laptop prompt (SSH host entry, VS Code port range, executor copy, deploy key, clone, skill copy, stack probes), then the orchestrator kickoff, recommended `autonomous` given the user's sleep, and the preflight kickoff.
+The user runs the setup prompt in a new laptop tab (`sonnet` + `high`): executor copy, SSH host entry, VS Code port range, deploy key, clone, skill copy, stack probes. The user then connects VS Code as `airlock-build`, signs in, and runs a short test prompt. The guide reviews both results, then hands over the orchestrator kickoff (recommended `autonomous`) and the preflight kickoff.
 
 ## Done by the user
 
