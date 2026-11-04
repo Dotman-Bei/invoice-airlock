@@ -1,38 +1,36 @@
 # Runsheet: Flip the Switch Hackathon
 
-Last updated: 2026-11-04 by the guide seat. Facts below come from a guide-level read of the event pages; the Step 0a pack supersedes them once committed.
+Last updated: 2026-11-04 13:45 UTC by the guide seat. The Step 0a pack at `docs/resources/2026-11-04-flip-the-switch/` is the source for event facts.
 
 ## Event
 
 - **Name:** Flip the Switch Hackathon (WeMakeDevs x DevTools Academy x Switch)
 - **URLs:** https://www.wemakedevs.org/hackathons/switch · https://www.devtoolsacademy.com/hackathons/flip-the-switch
-- **Deadline:** Sat 2026-11-07 23:59 IST = 18:29 UTC = 19:29 UTC+1. About 78 hours left at campaign start (2026-11-04 11:45 UTC).
-- **Judging:** Use of Switch 30% · Technical execution 25% · Creativity and impact 25% · Presentation and documentation 20%. Source is the DevTools Academy page only; the WeMakeDevs page renders 0%. Step 0a must confirm.
+- **Deadline:** Sat 2026-11-07 23:59 IST = 18:29 UTC = 19:29 UTC+1.
+- **Judging:** Use of Switch 30% · Technical execution 25% · Creativity and impact 25% · Presentation and documentation 20%.
 - **Must ship:** repo, demo video, README. Switch must be central. The Switch setup and the workflow must be built during the hackathon; existing agents, libraries and templates are fine.
 
 ## Project repo
 
 - `Dotman-Bei/flip-the-switch-2026`, private, pipeline-created by the guide. Local clone: `C:\Users\bamig\Documents\VIBE CODE\Hackathons\flip-the-switch-2026`.
-- Rename to the project slug when the project is named (idea-forge Step 4).
+- Rename to the project slug when the project is named (idea-forge Step 4). Update this line and every later `REPO:` field.
+- Read-write deploy key `github-flipswitch` is on the repo for the user's VPS. Remove it at closing if no longer needed.
 
 ## Kit
 
-- `C:\Users\bamig\Documents\VIBE CODE\Hackathons\build-system`, at origin/main 230bbc8. Read-only.
+- `C:\Users\bamig\Documents\VIBE CODE\Hackathons\build-system`, at origin/main 230bbc8, clean. Read-only.
 - `~/hackathons/build-system` from the original prompt does not exist on this machine. Every kickoff carries the real path.
 
 ## Tollgate
 
-- Report: not created yet. Step 0a Stage 0 creates `docs/tollgate/2026-11-04-tollgate.md`.
-- Guide observations from 2026-11-04, not a substitute for the report:
-  - Row 1 git: PASS. Row 2 gh: installed and logged in as Dotman-Bei, but not on the VS Code PATH (full path `C:\Users\bamig\AppData\Local\Programs\GitHub CLI\bin\gh.exe`). Row 3 kit: synced.
-  - Row 5 Chrome tools: FAIL in the guide session. Extension present in the Chrome Default profile; integration never enabled (no native host registered).
-  - Row 9 Node v22.17.1: PASS. Row 10 ffmpeg: missing, so Step 2.5 would block. Row 11 Python launcher and uv: present, 3.10–3.12 not confirmed. Row 16 disk: 105 GB free.
-  - Row 18 env: `CLAUDECODE=1`; no routing-defeating variables set.
-  - Campaign rows to add: Docker engine: not installed. WSL2: kernel file missing, no distro. Switch Console: not confirmed installed. OS: Windows Insider Dev build 21996.
+- Report: `docs/tollgate/2026-11-04-tollgate.md`, from Step 0a Stage 0, extended by a VPS probe.
+- **Verdicts:** 0a CLEAR · 0 CLEAR · 1 BLOCKED (C1 Docker, C2 Switch Console, C3 Switch server) · 2 BLOCKED (C1, C2, C3; stack rows not written) · 2.5 BLOCKED (row 10 ffmpeg; row 6 computer use to re-probe) · 3 CLEAR on that session's probes, re-probe row 5.
+- Routing: `per-spawn`; opus, sonnet and haiku resolve to `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`. No warnings.
+- `gh` is not on the VS Code PATH. Kickoffs carry `C:\Users\bamig\AppData\Local\Programs\GitHub CLI\bin\gh.exe`.
 
 ## Goal
 
-- Win Track 01 (Best Business Workflow, $2,000), plus the side tracks below. Confirmed by the user 2026-11-04.
+- Win Track 01 (Best Business Workflow), plus the side tracks below. Confirmed by the user 2026-11-04.
 
 ## Calendar
 
@@ -40,7 +38,7 @@ Last updated: 2026-11-04 by the guide seat. Facts below come from a guide-level 
 
 | Target (UTC+1) | Milestone |
 |---|---|
-| Wed Nov 4, evening | 0a and 0 done; Switch running locally or the fallback chosen; calendar-fit call made |
+| Wed Nov 4, evening | Step 0 done; Switch route proven; calendar-fit call made |
 | Thu Nov 5, morning | Step 1 approved; concierge preflight running alongside the build |
 | Fri Nov 6, 22:00 | Build green; frontend pages done; feature freeze |
 | Sat Nov 7, 12:00 | Demo video cut and watched by the user |
@@ -49,15 +47,22 @@ Last updated: 2026-11-04 by the guide seat. Facts below come from a guide-level 
 ## Strategy decisions
 
 - **Mode:** guided. First campaign on this event, and the user approves each baton.
-- **Steps:** 0a, 0, 1, 2, 2.5, 3 (preflight and closing). 0a stays because Switch is unfamiliar and carries the top weight. 2.5 stays because a demo video is mandatory.
+- **Steps:** 0a, 0, 1, 2, 2.5, 3 (preflight and closing). 2.5 stays because a demo video is mandatory.
 - **Tracks:**
-  1. Track 01 Best Business Workflow, $2,000: strongest skills overlap, and the docs include a worked payments room to learn from.
-  2. Code with Wispr, $500: stacks on any track; needs a Wispr Flow scorecard, so usage must start now.
+  1. Track 01 Best Business Workflow, `$2,000` on WeMakeDevs, "to be announced" on DevTools Academy: the user's confirmed goal.
+  2. Code with Wispr, `$500`: stacks on any track; needs a Wispr Flow scorecard, and Flow is not installed yet.
   3. Best Blog, AirPods 5: stacks on any track; low effort from project material.
-- **Dropped:** Track 03 ($100 each): all 63 open `hackathon` issues already have assignees (4–10 each in the 40 inspected), 200+ open PRs (query cap), and the rule is one person per issue. Track 02: same $2,000 but weaker skills overlap; re-check only if the idea fits it better.
-- **Risk appetite:** `safe-feasible`. 55% of the score rewards Switch centrality and reproducible execution, the runway is 78 hours, and Switch is new to the user. Differentiation comes from the Stellar domain depth, not from a risky architecture.
-- **Sponsor depth:** deep on Switch; requirements only for Wispr Flow; event rules only for WeMakeDevs and DevTools Academy.
-- **Event rule:** entry is limited to natural persons, and bots, scripts and automated agents are prohibited for entries. Registration and Submit stay human, with signup automation struck for event accounts.
+- **Correction 2026-11-04:** the guide first cited the docs' payments room as a Stellar skills fit. The pack shows it is about setting up a payments team's channel, not moving money, and the event has no blockchain component. Track 01 stands on the user's goal, not on that reason. Web3 skills get used only if the rubric picks an idea that needs them.
+- **Dropped:** Track 03: all 63 open `hackathon` issues already have assignees. Track 02: same prize, not the user's goal.
+- **Risk appetite:** `safe-feasible`. 55% of the score rewards Switch centrality and reproducible execution, the runway is short, and Switch is new to the user.
+- **Event rule:** Official Rules §3 prohibit bots, scripts and automated agents for registration or submission. Registration and Submit stay human, with signup automation struck for event accounts.
+
+## Switch route
+
+- **Correction 2026-11-04:** do not run the earlier prompt that installs Docker Desktop on the laptop. Docker's published minimum is build 22631 and the laptop is build 21996.
+- **Guide recommendation:** Switch Console on the laptop, server on the user's Ubuntu VPS. Needs the user's decision because the VPS runs other services: `127.0.0.1:8000` is taken, 4.1 GiB is available with no swap, and Docker is not installed there.
+- **First test:** install Switch Console on the laptop to learn whether #1441 applies. The route after that depends on the result.
+- **Fallbacks:** a separate small VPS if the user will not risk the current one. Compose plus Gateway if Console will not open.
 
 ## Frontend directive
 
@@ -71,26 +76,27 @@ Last updated: 2026-11-04 by the guide seat. Facts below come from a guide-level 
 | Step | Status | Artifact | Verification | Seat settings |
 |---|---|---|---|---|
 | Guide | open | this runsheet | n/a | `claude-opus-5-5`, stated; above the `standard` row, allowed. Effort `high`, per the prompt |
-| 0a resource-extractor | next | `docs/resources/2026-11-04-flip-the-switch/` | pending | set `opus` + `high` |
-| 0 idea-forge | pending | | | |
-| 1 architect | pending | | | |
-| 2 orchestrator | pending | | | |
-| 2.5 demo-studio | pending | | | |
+| 0a resource-extractor | done | `docs/resources/2026-11-04-flip-the-switch/` at 8efb5b4 | Passed by the guide 2026-11-04. Pushed; no secrets found by pattern scan; kit untouched; Switch deep, Wispr requirements. Weights match live DevTools Academy; WeMakeDevs 0% in fetched text matches the pack's count-up explanation (guide did not render it in Chrome). `submission_mode: none` confirmed live. Deviation accepted: rule prose is paraphrased, numbers are exact | `claude-opus-5-5`, stated; `high` per the kickoff |
+| 0 idea-forge | next | | | set `opus` + `max` |
+| 1 architect | blocked | | C1, C2, C3 | |
+| 2 orchestrator | blocked | | C1, C2, C3 | |
+| 2.5 demo-studio | blocked | | row 10 | |
 | 3 gate-concierge preflight | pending | | | |
 | 3 gate-concierge closing | pending | | | |
 
 ## Next action
 
-The user connects Chrome with `/chrome`, opens a new tab in a VS Code window on this repo, sets `opus` + `high`, and pastes the Step 0a kickoff.
+The user pastes the idea-forge kickoff in a new tab (`opus` + `max`), and in parallel installs Switch Console on the laptop in a throwaway tab and posts the submission question in Discord.
 
 ## Done by the user
 
-- 2026-11-04: signed up on the event page, starred the Switch repo, joined the Discord (user-reported).
+- 2026-11-04: signed up on the event page, starred the Switch repo, joined the Discord (user-reported; the signed-in event page showed the registered state).
 
 ## Open blockers
 
-1. Chrome tools not connected (row 5). Blocks 0a and 3; fix with `/chrome`.
-2. Docker engine missing, WSL2 kernel missing, early-access Windows Console, Insider OS build. Blocks 1 and 2 until Switch runs here or a remote-server fallback is chosen.
+1. Switch route not proven (C1, C2, C3). Blocks Steps 1 and 2.
+2. Submission form is off (`submission_mode: none`). User to ask in Discord today; recheck the API.
 3. ffmpeg missing. Blocks 2.5; fix before the demo.
-4. Submission location is not stated on the pages read; 0a to find it, otherwise ask in Discord.
+4. Wispr Flow not installed (C5). Blocks only that side track, but usage should start now.
 5. Before the orchestrator kickoff: hand over the prompt that copies `references/agents/executor-*.md` to `.claude/agents/`.
+6. Before the repo goes public: scrub machine details from the tollgate report and pack (laptop and VPS hostnames, the VPS service name and key path, the browser extension list).
