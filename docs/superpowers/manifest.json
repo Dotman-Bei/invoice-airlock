@@ -1444,7 +1444,7 @@
       "commit": "feat: add the page's replay of the recorded attacks",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "frontend:7.3",

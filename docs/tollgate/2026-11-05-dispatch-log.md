@@ -36,3 +36,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | docs:6.2 | standard → standard | `claude-sonnet-5-5` | high | 2 | BLOG PASS. Attempt 1 rewrote a plan sentence and was sent back; the file is now byte-identical to the plan | 66c003b |
 | frontend:7.1 | standard → standard | `claude-sonnet-5-5` | high | 1 | BLOCKED, not committed. Plan bug: the gate cannot pass on this path, because the design skill's `lint.mjs:22` drops any path containing "lock" and the repo is `invoice-airlock`. Tests pass, and the unmodified lint run from another path gives 0 FAIL, 0 WARN. Waiting on the user | none |
 | frontend:7.1 | standard → standard | `claude-sonnet-5-5` | high | 2 | RESULT: 0 FAIL, 0 WARN with the amended gate the user chose (option A). Attempt 1 blocked because lint.mjs drops paths containing lock | e1bf4a2 |
+| frontend:7.2 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 12571d7 |
