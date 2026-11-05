@@ -34,7 +34,7 @@ TBD-post-build:demo-video-url
 
 ### Live demo or deployment (optional): leave blank if your project doesn't have a live demo
 
-TBD-post-build:public-page-url
+https://invoice-airlock-site.vercel.app
 
 If the page was cut, leave this blank.
 

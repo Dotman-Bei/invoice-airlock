@@ -895,6 +895,8 @@ Message: `feat: add page motion and pass the inspector`
 
 ### Task 7.4: The Pages workflow
 
+**Superseded 2026-11-05:** the page moved to Vercel, so `.github/workflows/pages.yml` was removed after this task landed, and this task's gate no longer applies.
+
 **Files:**
 - Create: `.github/workflows/pages.yml`
 
@@ -962,23 +964,17 @@ Message: `chore: add the Pages workflow`
 **Effort:** low
 **Model tier:** top
 **Provides:** nothing new
-**Requires:** `.github/workflows/pages.yml, started by hand`
+**Requires:** nothing
 
-**A human runs this task, after the repo is public.** Making the repo public is the user's own step at submission.
-
-Upstream signatures, pasted from their providers:
-
-```text
-.github/workflows/pages.yml, started by hand
-```
+**A human runs this task.** Changed 2026-11-05: the user chose Vercel over GitHub Pages, so the page no longer waits for the repo to go public.
 
 - [ ] **Step 1: Publish it**
 
-In the repo's Settings, under Pages, set the source to GitHub Actions. Then, under Actions, start `Publish the page`.
+In Vercel, import the repo, set the root directory to `site` and the application preset to Other, with no build command and no environment variables. Then deploy.
 
 - [ ] **Step 2: Run to confirm it passes**
 
-Run: `curl -fsS -o /dev/null -w '%{http_code}' https://dotman-bei.github.io/invoice-airlock/`
+Run: `curl -fsS -o /dev/null -w '%{http_code}' https://invoice-airlock-site.vercel.app/`
 Expected: 200
 
 - [ ] **Step 3: Commit (performed by the orchestrator, no agent runs this)**

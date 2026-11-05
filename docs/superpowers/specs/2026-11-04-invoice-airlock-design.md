@@ -362,7 +362,7 @@ Docker targets: `agents` (courier, `treasury`, mock bank, `provision`, `proof-ru
 
 ## 14. Public page
 
-One static page in `site/`, plain HTML, CSS and a little JavaScript, deployed to GitHub Pages by the user once the repo is public. `design-taste-frontend` governs this page only. Its full specification is `docs/FRONTEND.md`, written after this spec is approved.
+One static page in `site/`, plain HTML, CSS and a little JavaScript, deployed to Vercel by the user (changed from GitHub Pages on 2026-11-05, by the user's choice). `design-taste-frontend` governs this page only. Its full specification is `docs/FRONTEND.md`, written after this spec is approved.
 
 Chat stays the workflow surface. The ledger view is not governed by the skill. The page is built only after `./prove.sh` passes, and **if it is not done by Fri 2026-11-06 18:00 UTC it is cut**.
 
