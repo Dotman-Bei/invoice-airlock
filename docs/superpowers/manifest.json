@@ -1400,7 +1400,7 @@
         "./prove.sh [--single-owner] [--keep], exit 0 contained, 1 attack succeeded or control failed, 2 no verdict"
       ],
       "gate": {
-        "run": "node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/site-page.test.ts && node /home/airlock-build/skills/design-taste-frontend/scripts/lint.mjs site",
+        "run": "node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/site-page.test.ts && docker run --rm --network none -v /home/airlock-build/skills/design-taste-frontend:/skill:ro -v \"$PWD/site:/work/site:ro\" -w /work node:22-slim node /skill/scripts/lint.mjs site",
         "expect": "RESULT: 0 FAIL"
       },
       "commit": "feat: add the public page and its pictures",

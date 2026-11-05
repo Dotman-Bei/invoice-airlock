@@ -520,7 +520,7 @@ This step's output includes: credits.json
 
 - [ ] **Step 5: Run to confirm it passes**
 
-Run: `node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/site-page.test.ts && node /home/airlock-build/skills/design-taste-frontend/scripts/lint.mjs site`
+Run: `node --disable-warning=ExperimentalWarning --test --test-reporter=tap tests/site-page.test.ts && docker run --rm --network none -v /home/airlock-build/skills/design-taste-frontend:/skill:ro -v "$PWD/site:/work/site:ro" -w /work node:22-slim node /skill/scripts/lint.mjs site`
 Expected: RESULT: 0 FAIL
 
 - [ ] **Step 6: Commit (performed by the orchestrator, no agent runs this)**
