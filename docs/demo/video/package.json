@@ -1,0 +1,27 @@
+{
+  "name": "invoice-airlock-demo-video",
+  "private": true,
+  "type": "module",
+  "description": "Remotion project for the Invoice Airlock demo video. Text comes from ../2026-11-05-demo-script.md and proof cards from ../../proof/*.md at build time.",
+  "scripts": {
+    "data": "node scripts/prebuild.mjs",
+    "stills": "node scripts/prebuild.mjs && node scripts/stills.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.487",
+    "@remotion/captions": "4.0.487",
+    "@remotion/cli": "4.0.487",
+    "@remotion/google-fonts": "4.0.487",
+    "@remotion/media": "4.0.487",
+    "@remotion/renderer": "4.0.487",
+    "mediabunny": "1.65.2",
+    "qrcode": "1.5.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.487"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "typescript": "5.8.3"
+  }
+}
