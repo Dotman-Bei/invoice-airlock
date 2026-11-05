@@ -12,3 +12,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | core:1.6 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 4b06722 |
 | core:1.7 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 7f714eb |
 | core:1.8 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 7946a71 |
+| core:1.9 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 36ea7dd |

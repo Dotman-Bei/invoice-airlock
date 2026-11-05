@@ -396,7 +396,7 @@
       "commit": "feat: add Gateway and Mattermost sessions",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "agents:2.1",
