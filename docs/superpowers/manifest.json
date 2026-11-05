@@ -725,7 +725,7 @@
       "commit": "feat: add reader's headless model extraction",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "agents:2.7",
