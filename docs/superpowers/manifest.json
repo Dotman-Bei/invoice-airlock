@@ -278,7 +278,7 @@
       "commit": "feat: add the Switch agent client",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "core:1.7",
