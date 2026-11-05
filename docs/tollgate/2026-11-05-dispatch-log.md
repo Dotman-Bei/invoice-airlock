@@ -30,3 +30,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | proof:4.4 | top → top | `claude-opus-5-5` | medium | 1 | BLOCKED, not committed. Plan bug in attack 7: `./prove.sh` exits 1 on 3 of 3 runs, 14 of 15 checks contained, no payment. Waiting on an architect fix | none |
 | proof:4.4 | top → top | `claude-opus-5-5` | medium | 2 | PASS, 15 of 15 contained, exit 0, after the attack 7 fix the user chose (option A) landed in 26b54be and 6f27b9e. Attack 7 reported refusal not_in_room | e4eb419 |
 | proof:4.5 | top → top | `claude-opus-5-5` | medium | 1 | PROOF RECORDED. Real run 15 of 15 contained, control exit 1 naming attack 3 | 4f0a394 |
+| demo:5.1 | top → top | `claude-opus-5-5` | medium | 1 | DEMO PASS, without --model. Model overlay config checked, its image not built | 81b786d |

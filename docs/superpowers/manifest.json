@@ -1240,7 +1240,7 @@
       "commit": "feat: add the demo command and model mode",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "demo:5.2",
