@@ -1201,7 +1201,7 @@
       "commit": "docs: record the proof and control reports",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "demo:5.1",
