@@ -175,6 +175,7 @@ Known limits:
 - A held invoice can't be paid in chat. The callback and any change to vendor bank details happen outside this system.
 - Removal doesn't update Mattermost's member list, because the bot stays listed. The courier's announcement covers that.
 - Hidden-room detection polls, so it's a few seconds late.
+- In attack 7 the courier usually removes treasury before the hijacked order arrives, so Switch refuses the order as not in the room. That run doesn't test the addressing policy inside the hidden room. Attack 2 tests it in `ap-intake`.
 - The fixtures are synthetic and small, and invoice parsing is deliberately narrow.
 - Mattermost's seeded `admin` and `user` accounts sit in every bridged channel, including `ap-release`.
 - The design contains a hijacked agent. It says nothing about whether a model resists injection.

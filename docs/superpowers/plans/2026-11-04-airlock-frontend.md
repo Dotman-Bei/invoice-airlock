@@ -588,7 +588,7 @@ const BACKING = [
   { attack: 4, answer: /^HTTP 403\.$/, list: /HTTP 403\.$/, report: /invite 403,/ },
   { attack: 5, answer: /^Rejected: /, list: /Rejected/, report: /refused true, \d+ rejections, leaked into ap-release: nothing, unexpected posts 0/ },
   { attack: 6, answer: /^Held: INV-2091/, list: /Held/, report: /held true, controller's pay refused true, ledger entries 0/ },
-  { attack: 7, answer: /treasury reports the room, and the courier removes it/, list: /Found and removed/, report: /target status not_permitted, alerted true, removed true, announced true, in time true/ },
+  { attack: 7, answer: /treasury reports the room, and the courier removes it/, list: /Found and removed/, report: /refusal (not_permitted|not_in_room), alerted true, removed true, announced true, in time true/ },
   { attack: 8, answer: /^HTTP 403\.$/, list: /HTTP 403\.$/, report: /intake 403, release 403,/ },
   { attack: 9, answer: /^No route, and no token\.$/, list: /No route and no token/, report: /dns false, tcp false, token false, Switch API reachable true/ },
 ];

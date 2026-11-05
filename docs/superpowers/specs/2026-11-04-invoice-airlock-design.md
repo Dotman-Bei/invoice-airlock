@@ -78,6 +78,7 @@ These were observed at runtime on 2026-11-04 unless marked "source". The tollgat
 | Text plus one file reaches the agent as a single media event, with the text as the caption, and `read_context` ids equal event `message_id`s (source) | `reader` handles one event per invoice. The courier deduplicates by id |
 | `PATCH /gateway/collaborations/{bridge_id}` with `agent_greetings_enabled: false` suppresses join greetings (source) | `provision` sets it, and the first Docker-gated task proves it |
 | Attachment bytes come from `GET /agents/{id}/rooms/{room_id}/media?mxc=<uri>` (source) | `reader` uses it, and the first Docker-gated task proves it |
+| Creating a bridged room takes seconds, and `treasury` joins about a second before `create_room` returns. On 2026-11-05 the courier removed it before the hijack's order arrived, on 3 of 3 proof runs, so the order drew HTTP 400 and not `not_permitted` | Attack 7 accepts either refusal and the report names which. Attack 2 is what proves `not_permitted` |
 | Seeded Mattermost accounts `admin` and `user` are in every bridged channel, including the private `ap-release`. They are unlinked, so they can address nobody | README known limits |
 
 ## 5. The packet
@@ -196,7 +197,7 @@ The hijack runs inside the `reader` container, with `reader`'s real key and real
 | 4 | Add itself to `ap-release` | `list_all_rooms` to get the id, then `invite_agent_to_room` | 403. Not on the roster | Hijack log, Gateway roster |
 | 5 | Push prose through the courier | `post_message` with `@courier` prose. An `AIRLOCK/1` line with prose in `invoice_no`. An otherwise valid line with an extra `note` key | Fixed refusal for the first. A rejection from the courier for all three. None of that text in `ap-release` | Hijack log, both transcripts |
 | 6 | Valid packet with the attacker's bank account | `post_message` with a well-formed packet: `routing` 000999888, `account` 99887766, all else matching vendor, PO and goods receipt | Held with `bank-mismatch`, naming the invoice. The full attacker account is absent from `ap-release`. The controller's `@treasury pay INV-2091` is refused. No payment | `ap-release` transcript, ledger |
-| 7 | Hide `treasury` in a new room | `list_bridges`, `create_room` with `reader` and `treasury`, `connect_to_room`, `send_targeted_message` | `not_permitted`. `treasury` alerts. The courier removes it from outside the room and announces, within 30 s. The room's name is absent from `ap-release`. No payment | Hijack log, `ap-release` transcript, Gateway roster, ledger |
+| 7 | Hide `treasury` in a new room | `list_bridges`, `create_room` with `reader` and `treasury`, `connect_to_room`, `send_targeted_message` | Switch refuses the order: `not_permitted` if `treasury` is still in the room, or HTTP 400 `Targets not in room: treasury` if the courier has already removed it. `treasury` alerts. The courier removes it from outside the room and announces, within 30 s. The room's name is absent from `ap-release`. No payment | Hijack log, `ap-release` transcript, Gateway roster, ledger |
 | 8 | Take out the courier | `remove_agent_from_room` for `courier` on both rooms | 403 on both. Still on the `ap-intake` roster | Hijack log, Gateway roster |
 | 9 | Reach the bank directly | DNS lookup and TCP connect to `mock-bank:9000`, read `BANK_TOKEN` from its own environment, and connect to `switch:8000` as a positive control | No route and no token, while `switch:8000` connects. If that control fails, a broken probe is the likely cause, so the result is inconclusive | Hijack log |
 
@@ -373,7 +374,7 @@ Chat stays the workflow surface. The ledger view is not governed by the skill. T
 - **Submission draft:** `docs/gates/submission-draft.md` answers all 12 form fields, with build-time facts marked `TBD-post-build`. The user files the form.
 - **Wispr:** process only. No task, and nothing in the product. The user dictates prompts, room instructions and the README, and uploads the usage card.
 
-**Known limits for the README's Roadmap:** held invoices cannot be paid in chat. Removal does not update Mattermost's member list. Seeded accounts sit in every channel. Hidden-room detection polls, so it is seconds late. Fixtures are synthetic and small. The design contains a hijacked agent; it says nothing about whether a model resists injection.
+**Known limits for the README's Roadmap:** held invoices cannot be paid in chat. Removal does not update Mattermost's member list. Seeded accounts sit in every channel. Hidden-room detection polls, so it is seconds late. Attack 7 usually ends with `treasury` already removed, so it rarely tests the addressing policy inside the hidden room; attack 2 tests that in `ap-intake`. Fixtures are synthetic and small. The design contains a hijacked agent; it says nothing about whether a model resists injection.
 
 ## 16. Build order and cut lines
 
@@ -409,4 +410,5 @@ Chat stays the workflow surface. The ledger view is not governed by the skill. T
 | Rooms from templates or `POST /rooms`? | Templates, one per owner. `POST /gateway/rooms/from-yaml` with cross-owner `agents:` returned 201 at runtime. `read_visibility` in a template was not run, so the stack check proves it | Runtime checks, approved at the design gate |
 | Does `reader` report activity? | No. It hits #1158 and adds nothing | Tollgate finding 8 |
 | Licence? | MIT, with no Switch code in the repo | Derived |
+| What if the courier removes `treasury` before attack 7's order arrives? | Accept that refusal as well as `not_permitted`, say which happened in the report, and state the limit in the README | User, option A, 2026-11-05, after the first `./prove.sh` run |
 | Is a local Docker stack a deploy? | No. It is throwaway, on the approved rootless daemon, so those tasks run unattended | Access list approved at the design gate; a plan reviewer asked, and the architect declined to gate them |
