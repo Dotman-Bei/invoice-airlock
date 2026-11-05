@@ -1335,7 +1335,7 @@
       "commit": "docs: write the README",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "docs:6.2",

@@ -32,3 +32,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | proof:4.5 | top → top | `claude-opus-5-5` | medium | 1 | PROOF RECORDED. Real run 15 of 15 contained, control exit 1 naming attack 3 | 4f0a394 |
 | demo:5.1 | top → top | `claude-opus-5-5` | medium | 1 | DEMO PASS, without --model. Model overlay config checked, its image not built | 81b786d |
 | demo:5.2 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 27845db |
+| docs:6.1 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 780a537 |
