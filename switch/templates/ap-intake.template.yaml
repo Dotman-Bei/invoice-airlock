@@ -1,0 +1,11 @@
+# Run by the clerk. Outside content lands here, and nothing in this room can move money.
+version: 1
+room:
+  name: ap-intake
+  description: Accounts payable intake. Vendor invoices land here. Nothing in this room can move money.
+  instructions: >
+    The clerk drops one PDF invoice at a time and mentions reader. reader posts one typed packet.
+    courier checks each packet and sends only typed fields to the controller. Prose goes no further.
+  channel_type: channel_public
+  agents: [reader, courier]
+  users: ["{$creator}"]

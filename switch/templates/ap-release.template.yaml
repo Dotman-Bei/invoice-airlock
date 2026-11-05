@@ -1,0 +1,13 @@
+# Run by the controller. Private, and the only room treasury takes orders in.
+version: 1
+room:
+  name: ap-release
+  description: Accounts payable release. Only the controller can release money here.
+  instructions: >
+    courier posts cleared and held invoices here, built only from typed fields and the vendor master.
+    The controller pays a cleared invoice by telling treasury to pay it. treasury obeys nobody else.
+  channel_type: channel_private
+  read_visibility: private
+  write_visibility: private
+  agents: [treasury, courier]
+  users: ["{$creator}"]
