@@ -1480,7 +1480,7 @@
       "commit": "feat: add page motion and pass the inspector",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "frontend:7.4",
