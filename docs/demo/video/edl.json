@@ -25,7 +25,11 @@
     },
     "S5": {
       "layouts": [{ "atS": 0, "layout": "clerk" }],
-      "pieces": [{ "live": [21.0, 26.0], "includes": ["order", "refusal"], "excludes": ["held"] }, { "hold": 26.0, "fill": true, "drift": true }]
+      "pieces": [
+        { "hold": 21.0, "seconds": 3.0 },
+        { "live": [21.0, 26.0], "includes": ["order", "refusal"], "excludes": ["held"] },
+        { "hold": 26.0, "fill": true, "drift": true }
+      ]
     },
     "S6": {
       "layouts": [{ "atS": 0, "layout": "controller" }, { "atS": 7.6, "layout": "all" }, { "atS": 15.0, "layout": "ledger" }],

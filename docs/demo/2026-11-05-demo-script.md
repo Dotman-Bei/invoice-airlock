@@ -129,16 +129,20 @@ Mechanics (capture, TTS, timing, render, loudness): `references/demo-stack.md`, 
 
 | check | scene(s) | pass/fail | note |
 |---|---|---|---|
-| money shot visible | | | |
-| text legible at 1080p | | | |
-| captions present + synced | | | |
-| no capture yellow border | | | |
-| no secret / no address that shouldn't be on screen | | | |
-| per-scene duration within budget | | | |
-| total duration within ±10% | | | |
-| audio present, loudness sane | | | |
+| money shot visible | S4, S5, S6, S7 | pass | Read from frames of the encoded file: the clerk's drop, `reader`'s hijack line, `@treasury added to the channel`, the $48,200.00 wire order, Switch's refusal inline and not collapsed, `Held: INV-2091`, `Security alert`, the removal notice, the ledger at $250,000.00 on a large ledger cut, then the clean invoice cleared, paid and the ledger at $237,600.00 with its entry row |
+| text legible at 1080p | S1-S11 | pass | Cards and the focus views are large. In the three-up the message text is small but legible and the ledger rows are too small, so the ledger gets a large cut at the end of S6 and S7. Unfocused panes in focus views are small context thumbnails and are not meant to be read |
+| captions present + synced | S1-S4, S6-S11 | pass | Word-timed from Kokoro token timestamps with the spoken word highlighted, and equal to the section 4 words. Frames read |
+| no capture yellow border | S1-S11 | pass | The browser screencast records Playwright viewports, so no Windows capture border exists. Frames read |
+| no secret / no address that shouldn't be on screen | S1-S11 | pass | Frames read. Only synthetic fixture account numbers, file hashes and usernames appear. No token, password, hostname, IP address, address bar or VPS prompt, and the relayed logins never appear |
+| per-scene duration within budget | S1-S11 | pass | Judged at ±25% of the section 3 seconds: S2 +23.7%, S7 -19.8%, S10 -11.9%, S4 -10.2%, the rest within 7%. Audio-first timing makes each scene follow its words |
+| total duration within ±10% | S1-S11 | pass | 160.97 s (2:41) against 170 s, -5.3%. Under the 2:58 ceiling and the 3:00 form limit |
+| audio present, loudness sane | S1-S11 | pass | -14.01 LUFS integrated, true peak -1.43 dBTP (0.07 dB over the -1.5 target, within AAC re-encode tolerance), sample peak -1.44 dB, flat factor 0, no clipping, no silence over 1.7 s. Gaps between scenes are about 1.5 s |
+| captions present + synced | S5 | fail (render 1) | The refusal appeared about 3 s before the narrator said "Switch refuses", because the live footage began as the scene did |
+| captions present + synced | S5 | pass (render 2) | Fixed by continuing the static join frame for 3 s at the start of S5. Re-rendered, loudness re-measured, and the order and refusal confirmed on screen at 3.3 s and 4.1 s into the scene |
 
 Extra criteria for this campaign. Total duration: the ±10% rule applies below the ceiling only, and any render at or over 2:58 is a fail. "No secret / no address" covers tokens, passwords, hostnames, IP addresses, a VPS shell prompt and the relayed logins. Every proof card must show its "RECORDED RUN" banner. The attack 7 note must appear on S9.
+
+Residuals carried to the watch: the voice has not been heard by this seat, only checked by phonemes, so pronunciation of `treasury`, `courier`, `reader` and `Airlock` needs a listen. The gaps between scenes are about 1.5 s, which may feel slow. S3, S4, S5, S6 and S7 contain holds on frames that were genuinely static on screen, never speed-ramped, and the one trimmed wait (the ~8 s model read) carries an on-screen chip. The true peak is 0.07 dB over the target. The outro QR resolves only once the repo is public.
 
 ## 7 — Publish block
 
@@ -163,3 +167,5 @@ Extra criteria for this campaign. Total duration: the ±10% rule applies below t
 | 2026-11-05 | pre-flight verified (rows 1, 2, 4, 5, 6, 7 ticked; row 3 N/A; Focus assist unconfirmed, capture is headless) | demo-studio |
 | 2026-11-05 | superseded-edit (pre-flight row 2: verification method and invoice file sizes corrected and its tick withdrawn, after desk run 1 stopped at its first beat because the CRLF-altered PDF did not match the poisoned hash. No change to scenes, narration, assembly or publish copy) | demo-studio |
 | 2026-11-05 | recorded (5/5 footage scenes S3-S7 from desk run 2; cards S1, S2, S8-S11 render at assembly. Desk run 1 stopped at its first beat, see the superseded-edit row) | demo-studio |
+| 2026-11-05 | assembled (2 renders: 1080p h264 30 fps, 2:41, audio-first from Kokoro, -14 LUFS; `docs/demo/video/out/invoice-airlock-demo.mp4`, git-ignored) | demo-studio |
+| 2026-11-05 | QC passed [residuals: voice not heard by this seat, phonemes checked only; about 1.5 s gaps between scenes; disclosed static-frame holds in S3-S7; true peak 0.07 dB over target; outro QR resolves only once the repo is public] | demo-studio |
