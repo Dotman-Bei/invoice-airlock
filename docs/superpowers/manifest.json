@@ -585,7 +585,7 @@
       "commit": "feat: add treasury, which obeys only the controller",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "agents:2.4",
