@@ -86,7 +86,7 @@
       "commit": "feat: add the strict packet schema",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "core:1.3",

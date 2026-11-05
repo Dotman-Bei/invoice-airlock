@@ -5,3 +5,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | Task | Requested tier | Resolved model | Dispatched effort | Attempts | Gate, re-run by the orchestrator | Commit |
 |---|---|---|---|---|---|---|
 | core:1.1 | fast → fast | `claude-haiku-5-5` | low | 1 | PASS | 541879f |
+| core:1.2 | top → top | `claude-opus-5-5` | high | 1 | PASS | 2f69647 |
