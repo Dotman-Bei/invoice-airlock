@@ -38,3 +38,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | frontend:7.1 | standard → standard | `claude-sonnet-5-5` | high | 2 | RESULT: 0 FAIL, 0 WARN with the amended gate the user chose (option A). Attempt 1 blocked because lint.mjs drops paths containing lock | e1bf4a2 |
 | frontend:7.2 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 12571d7 |
 | frontend:7.3 | standard → standard | `claude-sonnet-5-5` | high | 1 | RESULT: 0 FAIL, 1 WARN, the no-footage warning FRONTEND.md accepts. Screenshots read by the orchestrator | 1c10b8d |
+| frontend:7.4 | fast → fast | `claude-haiku-5-5` | low | 1 | PASS | 61a3c6b |
