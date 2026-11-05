@@ -22,7 +22,7 @@ Accounts-payable teams are being asked to let AI agents read vendor invoices, th
 
 Invoice Airlock is an accounts-payable desk on Switch for a small finance team, built on the assumption that the agent has already lost. Outside content stays in a room with no reach. Only validated typed fields cross to the room that can pay, through a courier that runs no model. Only the controller can release money. When the hijacked agent tries everything it can, the ledger doesn't move.
 
-The invoice attack is a scenario, the hijack is scripted on purpose, the vendors are synthetic and the bank is a mock. It makes no claim that any model resists injection.
+What the demo stages, said plainly: one person plays both the clerk and the controller, on two accounts. The invoice attack is a scenario and the hijack is scripted on purpose, because the room is under test, not the model. The courier's removal of the pulled-in agent is delayed on purpose so each step can be seen; Switch's refusal is what stops the money. The proof tables in the video are recorded runs from the repo, not live. The vendors are synthetic, the amounts are illustrative and the bank is a mock. It makes no claim that any model resists injection.
 
 ### GitHub Repository or contribution (required): public repository, with a README that explains how to set it up
 
@@ -35,8 +35,6 @@ https://youtu.be/e0wOvpWHt5A
 ### Live demo or deployment (optional): leave blank if your project doesn't have a live demo
 
 https://invoice-airlock-site.vercel.app
-
-If the page was cut, leave this blank.
 
 ## Track Details
 
