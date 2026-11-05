@@ -514,7 +514,7 @@
       "commit": "feat: add the courier between the rooms",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "agents:2.3",
