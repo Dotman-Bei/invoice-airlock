@@ -1406,7 +1406,7 @@
       "commit": "feat: add the public page and its pictures",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "frontend:7.2",
