@@ -37,7 +37,7 @@ The first run pulls Switch's images, so give it a few minutes. It stands up a fr
 | 1 | An attack succeeded or a control failed. The report names which |
 | 2 | No verdict. This is never a pass |
 
-`./prove.sh --single-owner` is the control. It gives `reader` and `treasury` the same owner. Attacks 2, 3, 4, 5, 7 and 8 succeed, and attack 8 removes the courier from both rooms, so the clean invoice never clears and the clean payment fails. No money moves during the hostile run, and the run exits 1. That shows Switch's owner boundary is what holds. A recorded run of each is in `docs/proof/`.
+`./prove.sh --single-owner` is the control. It gives `reader` and `treasury` the same owner. Attacks 2, 3, 4, 5 and 8 succeed. Attack 7 varies: it succeeded in 1 of 3 runs and was contained in the other 2. Attack 8 removes the courier from both rooms, so the clean invoice never clears and the clean payment fails. No money moves during the hostile run, and the run exits 1. That shows Switch's owner boundary is what holds. Recorded runs are in `docs/proof/`: `proof-report.md` for two owners, and `single-owner-report.md` (attack 7 breached) and `single-owner-report-rerun.md` (attack 7 contained) for the control.
 
 ## Built at Flip the Switch Hackathon
 
@@ -61,7 +61,7 @@ Flip the Switch Hackathon, WeMakeDevs x DevTools Academy x Switch, November 4-7,
 - Room membership keeps `reader` out of `ap-release` and away from its context.
 - Sender identity comes from Switch, so a clerk who renames themselves "Controller" is still the clerk.
 
-`treasury` also checks the sender and the room itself, using the identity Switch gives it. So in the `--single-owner` control, attacks 2, 3, 4, 5, 7 and 8 succeed and the run fails. Attack 8 removes the courier from both rooms, so the clean invoice never clears and the clean payment fails. Still, no money moves during the hostile run, and the hijacked `reader` can't get a payment out of `treasury`.
+`treasury` also checks the sender and the room itself, using the identity Switch gives it. So in the `--single-owner` control, attacks 2, 3, 4, 5 and 8 succeed, attack 7 succeeded in 1 of 3 runs, and the run fails. Attack 8 removes the courier from both rooms, so the clean invoice never clears and the clean payment fails. Still, no money moves during the hostile run, and the hijacked `reader` can't get a payment out of `treasury`.
 
 **The attacks `./prove.sh` replays:**
 
@@ -129,7 +129,8 @@ Known limits:
 - A held invoice can't be paid in chat. The callback and any change to vendor bank details happen outside this system.
 - Removal doesn't update Mattermost's member list, because the bot stays listed. The courier's announcement covers that.
 - Hidden-room detection polls, so it's a few seconds late.
-- In attack 7 the courier usually removes treasury before the hijacked order arrives, so Switch refuses the order as not in the room. That run doesn't test the addressing policy inside the hidden room. Attack 2 tests it in `ap-intake`.
+- In attack 7 the courier sometimes removes treasury before the hijacked order arrives (2 of 4 repeated two-owner runs), so Switch refuses the order as not in the room. Those runs don't test the addressing policy inside the hidden room. Attack 2 tests it in `ap-intake`.
+- Under `--single-owner`, attack 7 was breached in 1 of 3 runs, when the courier's removal notice missed its 30-second window. The cause was not investigated. It affects only that control, and no money moved in any run.
 - The fixtures are synthetic and small, and invoice parsing is deliberately narrow.
 - Mattermost's seeded `admin` and `user` accounts sit in every bridged channel, including `ap-release`.
 - The design contains a hijacked agent. It says nothing about whether a model resists injection.
