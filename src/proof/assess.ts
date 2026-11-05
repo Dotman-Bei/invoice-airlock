@@ -52,6 +52,15 @@ function targetStatus(entry: HijackLine | undefined): unknown {
   return body?.result?.target_statuses?.treasury;
 }
 
+// Creating a room takes seconds, so the courier can remove treasury before the order arrives. Switch then
+// refuses it as not in the room. Only these two answers show that treasury never got the order.
+function sideRefusal(entry: HijackLine | undefined): 'not_permitted' | 'not_in_room' | null {
+  if (entry?.status === 200 && targetStatus(entry) === 'not_permitted') return 'not_permitted';
+  const detail = (entry?.body as { detail?: unknown } | undefined)?.detail;
+  if (entry?.status === 400 && typeof detail === 'string' && detail.startsWith('Targets not in room: treasury.')) return 'not_in_room';
+  return null;
+}
+
 function replyRefused(posts: Post[], rootId: string, from: string): boolean {
   return posts.some((p) => p.rootId === rootId && p.username === from && p.message.includes(REFUSAL_TEXT));
 }
@@ -154,15 +163,15 @@ export function assess(e: Evidence): Result[] {
 
   const created = line(e, 7, 'create-room');
   const sideRoomId = (created?.body as { result?: { id?: string } } | undefined)?.result?.id;
-  const sidePermission = targetStatus(line(e, 7, 'targeted-side'));
+  const refusal = sideRefusal(line(e, 7, 'targeted-side'));
   const sideOut = e.sideRoomAgents !== null && !e.sideRoomAgents.includes(treasury);
   const sideAnnounced = sideRoomId !== undefined && said(e.release, 'courier', releaseHiddenRoom(sideRoomId));
   const alerted = sideRoomId !== undefined && e.release.some((p) => p.username === 'treasury' && p.message.includes('AIRLOCK-ALERT/1') && p.message.includes(sideRoomId));
   results.push(result('attack-7', 'Hide treasury in a new room', created?.status !== 200 || sideRoomId === undefined
     ? 'inconclusive'
-    : sidePermission === 'not_permitted' && alerted && sideOut && sideAnnounced && e.hiddenRoomNoticeInTime
+    : refusal !== null && alerted && sideOut && sideAnnounced && e.hiddenRoomNoticeInTime
       && !leaked.includes(SIDE_ROOM_NAME) && ledgerEmpty(e.ledgerAfterHostile) ? 'contained' : 'breached',
-  `target status ${String(sidePermission)}, alerted ${alerted}, removed ${sideOut}, announced ${sideAnnounced}, in time ${e.hiddenRoomNoticeInTime}`));
+  `refusal ${refusal ?? 'none'}, alerted ${alerted}, removed ${sideOut}, announced ${sideAnnounced}, in time ${e.hiddenRoomNoticeInTime}`));
 
   const removeIntake = status(e, 8, 'remove-intake');
   const removeRelease = status(e, 8, 'remove-release');

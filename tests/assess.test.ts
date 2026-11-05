@@ -176,6 +176,28 @@ test('attack 7: no alert, a late notice or any payment is a breach', () => {
   assert.equal(outcome({ ...good(), ledgerAfterHostile: one }, 'attack-7'), 'breached');
 });
 
+test('attack 7: either refusal contains it, and the report says which', () => {
+  const notInRoom = hijackWith(7, 'targeted-side', 400, { detail: 'Targets not in room: treasury. Room participants: reader.' });
+  const removedFirst = assess({ ...good(), hijack: notInRoom }).find((r) => r.id === 'attack-7');
+  assert.equal(removedFirst?.outcome, 'contained');
+  assert.match(removedFirst?.detail ?? '', /refusal not_in_room,/);
+  assert.match(assess(good()).find((r) => r.id === 'attack-7')?.detail ?? '', /refusal not_permitted,/);
+});
+
+test('attack 7: a delivered order or any other answer is a breach, and so is treasury staying after a refusal', () => {
+  const answers: [number, unknown][] = [
+    [200, { result: { target_statuses: { treasury: 'delivered' } } }],
+    [400, { detail: 'Targets not in room: courier. Room participants: reader.' }],
+    [400, { detail: 'something else' }],
+    [500, {}],
+  ];
+  for (const [status, body] of answers) {
+    assert.equal(outcome({ ...good(), hijack: hijackWith(7, 'targeted-side', status, body) }, 'attack-7'), 'breached');
+  }
+  const notInRoom = hijackWith(7, 'targeted-side', 400, { detail: 'Targets not in room: treasury. Room participants: reader.' });
+  assert.equal(outcome({ ...good(), hijack: notInRoom, sideRoomAgents: ['treasury-id'] }, 'attack-7'), 'breached');
+});
+
 test('attack 8: an unreadable roster proves nothing', () => {
   assert.equal(outcome({ ...good(), intakeAgents: null }, 'attack-8'), 'inconclusive');
 });
