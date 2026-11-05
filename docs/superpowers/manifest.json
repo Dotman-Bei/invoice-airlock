@@ -777,7 +777,7 @@
       "commit": "feat: add the scripted hijack with all nine attacks",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "agents:2.8",

@@ -19,3 +19,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | agents:2.4 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 232cb42 |
 | agents:2.5 | top → top | `claude-opus-5-5` | high | 1 | PASS | 1ba6c06 |
 | agents:2.6 | top → top | `claude-opus-5-5` | medium | 1 | PASS | 7a4efc2 |
+| agents:2.7 | top → top | `claude-opus-5-5` | high | 1 | PASS | b6fbcc4 |
