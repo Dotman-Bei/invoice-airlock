@@ -33,3 +33,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | demo:5.1 | top → top | `claude-opus-5-5` | medium | 1 | DEMO PASS, without --model. Model overlay config checked, its image not built | 81b786d |
 | demo:5.2 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 27845db |
 | docs:6.1 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 780a537 |
+| docs:6.2 | standard → standard | `claude-sonnet-5-5` | high | 2 | BLOG PASS. Attempt 1 rewrote a plan sentence and was sent back; the file is now byte-identical to the plan | 66c003b |
