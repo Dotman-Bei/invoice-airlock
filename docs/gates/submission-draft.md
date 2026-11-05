@@ -44,7 +44,7 @@ Leave blank. Not entered in that track.
 
 ### Blog post (optional): the best blog wins AirPods 5
 
-TBD-post-build:blog-post-url
+https://medium.com/@bamigboyeemmanuel401/your-agent-will-get-fooled-so-set-up-your-rooms-so-that-it-doesnt-matter-3d668766b245
 
 ### Your Wispr usage card (optional, required for Code with Wispr): in the Wispr Flow desktop app, open Insights, then Your usage, then Share, and upload the card
 
