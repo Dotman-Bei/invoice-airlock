@@ -1128,7 +1128,7 @@
       "commit": "feat: add the check that a verdict has a real report",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "proof:4.4",
