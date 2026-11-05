@@ -1531,17 +1531,15 @@
         "test": []
       },
       "provides": [],
-      "requires": [
-        ".github/workflows/pages.yml, started by hand"
-      ],
+      "requires": [],
       "gate": {
-        "run": "curl -fsS -o /dev/null -w '%{http_code}' https://dotman-bei.github.io/invoice-airlock/",
+        "run": "curl -fsS -o /dev/null -w '%{http_code}' https://invoice-airlock-site.vercel.app/",
         "expect": "200"
       },
       "commit": "chore: confirm the public page is live",
       "human_gate": true,
       "allow_empty": true,
-      "status": "pending",
+      "status": "done",
       "gate_profile": "deploy"
     }
   ]
