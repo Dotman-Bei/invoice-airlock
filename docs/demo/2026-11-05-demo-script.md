@@ -159,3 +159,4 @@ Extra criteria for this campaign. Total duration: the ±10% rule applies below t
 |---|---|---|
 | 2026-11-05 | scripted | demo-studio |
 | 2026-11-05 | approved (whole call sheet: scenes, pre-flight, narration, assembly, publish copy, and the three deviations: concurrent three-pane capture, recorded-run proof cards, Remotion code under docs/demo/video/) | the user |
+| 2026-11-05 | approved (storyboard stills S1-S11 as shown; consent to a foreground do-not-disturb recording window for desk run 1 and up to 3 desk runs, each after a fresh reset) | the user |
