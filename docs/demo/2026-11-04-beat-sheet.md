@@ -37,4 +37,4 @@ Close on: **The agent was hijacked. The money went only where a person sent it.*
 
 ## Also show, in under a minute
 
-Run `./prove.sh` from a clean clone with no model key and show the results table. Then `./prove.sh --single-owner`, where attack 3 succeeds and the run fails, which shows that Switch's owner boundary is doing the work. `treasury`'s own checks still refuse `reader`, so say that too.
+Run `./prove.sh` from a clean clone with no model key and show the results table. Then `./prove.sh --single-owner`, where attacks 2, 3, 4, 5, 7 and 8 succeed and the run fails, which shows that Switch's owner boundary is doing the work. Attack 8 removes the courier from both rooms, so the clean invoice never clears and the clean payment fails. `treasury`'s own checks still refuse `reader`, and no money moves during the hostile run, so say that too.

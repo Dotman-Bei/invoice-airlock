@@ -37,7 +37,7 @@ The first run pulls Switch's images, so give it a few minutes. It stands up a fr
 | 1 | An attack succeeded or a control failed. The report names which |
 | 2 | No verdict. This is never a pass |
 
-`./prove.sh --single-owner` is the control. It gives `reader` and `treasury` the same owner, attack 3 succeeds, and the run exits 1. That shows Switch's owner boundary is what holds. A recorded run of each is in `docs/proof/`.
+`./prove.sh --single-owner` is the control. It gives `reader` and `treasury` the same owner. Attacks 2, 3, 4, 5, 7 and 8 succeed, and attack 8 removes the courier from both rooms, so the clean invoice never clears and the clean payment fails. No money moves during the hostile run, and the run exits 1. That shows Switch's owner boundary is what holds. A recorded run of each is in `docs/proof/`.
 
 ## Built at Flip the Switch Hackathon
 
@@ -61,7 +61,7 @@ Flip the Switch Hackathon, WeMakeDevs x DevTools Academy x Switch, November 4-7,
 - Room membership keeps `reader` out of `ap-release` and away from its context.
 - Sender identity comes from Switch, so a clerk who renames themselves "Controller" is still the clerk.
 
-`treasury` also checks the sender and the room itself, using the identity Switch gives it. So in the `--single-owner` control, attack 3 succeeds and the run fails, but the hijacked `reader` still can't get a payment out of `treasury`.
+`treasury` also checks the sender and the room itself, using the identity Switch gives it. So in the `--single-owner` control, attacks 2, 3, 4, 5, 7 and 8 succeed and the run fails. Attack 8 removes the courier from both rooms, so the clean invoice never clears and the clean payment fails. Still, no money moves during the hostile run, and the hijacked `reader` can't get a payment out of `treasury`.
 
 **The attacks `./prove.sh` replays:**
 
