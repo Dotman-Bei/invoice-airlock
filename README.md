@@ -5,11 +5,12 @@ An accounts-payable desk on Switch that stays safe when the agent reading vendor
 
 ## Demo
 
-TBD-post-build:demo-video-url
-TBD-post-build:public-page-url
-TBD-post-build:screenshot
+- Demo video (2:41): https://youtu.be/e0wOvpWHt5A
+- Project page: https://invoice-airlock-site.vercel.app
 
-**In the demo, one person plays both the clerk and the controller, on two Switch accounts.** The hijack is scripted on purpose. The courier's removal is delayed by a few seconds so each beat can be seen. Amounts are illustrative, the vendors are synthetic, and no real money exists.
+![The hijacked reader's wire order refused inline by Switch, the invoice held, treasury removed, and the mock ledger unmoved at $250,000.00](docs/demo/screenshot-hijack-contained.jpg)
+
+**In the demo, one person plays both the clerk and the controller, on two Switch accounts.** The hijack is scripted on purpose. The courier's removal is delayed on purpose so each beat can be seen. The proof tables in the video are recorded runs from `docs/proof/`, not live. Amounts are illustrative, the vendors are synthetic, the bank is a mock, and no real money exists.
 
 ## What it does
 
