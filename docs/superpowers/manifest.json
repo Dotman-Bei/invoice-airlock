@@ -980,7 +980,7 @@
       "commit": "feat: add the stack check",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "proof:4.1",
