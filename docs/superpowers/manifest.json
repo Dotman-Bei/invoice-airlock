@@ -1039,7 +1039,7 @@
       "commit": "feat: add the proof's verdict rules and report",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "proof:4.2",
