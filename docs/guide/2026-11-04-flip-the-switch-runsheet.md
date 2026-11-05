@@ -1,6 +1,6 @@
 # Runsheet: Flip the Switch Hackathon
 
-Last updated: 2026-11-04 18:41 UTC by the guide seat. The Step 0a pack at `docs/resources/2026-11-04-flip-the-switch/` is the source for event facts.
+Last updated: 2026-11-05 by the guide seat. The Step 0a pack at `docs/resources/2026-11-04-flip-the-switch/` is the source for event facts.
 
 ## Event
 
@@ -24,7 +24,7 @@ Last updated: 2026-11-04 18:41 UTC by the guide seat. The Step 0a pack at `docs/
 ## Tollgate
 
 - Report: `docs/tollgate/2026-11-04-tollgate.md`, from Step 0a Stage 0, extended by a VPS probe.
-- **Verdicts:** 0a CLEAR · 0 CLEAR · 1 CLEAR · 2 BLOCKED (stack rows not written) · 2.5 BLOCKED (row 10 ffmpeg; row 6 computer use to re-probe) · 3 CLEAR on that session's probes, re-probe row 5.
+- **Verdicts:** 0a CLEAR · 0 CLEAR · 1 CLEAR · 2 CLEAR (orchestrator, 2026-11-05) · 2.5 BLOCKED (row 10 ffmpeg; row 6 computer use to re-probe) · 3 CLEAR on that session's probes, re-probe row 5.
 - Routing: `per-spawn`; opus, sonnet and haiku resolve to `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`. No warnings.
 - `gh` is not on the VS Code PATH. Kickoffs carry `C:\Users\bamig\AppData\Local\Programs\GitHub CLI\bin\gh.exe`.
 
@@ -69,7 +69,7 @@ Last updated: 2026-11-04 18:41 UTC by the guide seat. The Step 0a pack at `docs/
 - **Server (from the committed report, 3e9e6b3; the guide did not re-run it):** Switch 0.31.0 runs on the VPS under non-root user `switch`, loopback only: API 18000, Gateway 13000, Mattermost 18065, Postgres 15432. Stack idle about 441 MiB, about 3.7 GiB available, swap 750 MiB; agents and model load not measured. The stack has no restart policy, so it stays down after a host reboot until `docker compose up -d`.
 - **Runtime results:** the two-owner containment held; no attack reached `treasury`. Money-shot changes needed: refusals hide behind "1 reply" unless `CollapsedThreads` is disabled, and the ejection doesn't show in Mattermost, so the courier must announce it. The architect plans from these findings.
 - **Build location (user-approved at the design gate, spec section 11):** on the VPS, under new OS user `airlock-build`, with rootless Docker, no sudo, and a firewall chain that only that user's packets enter. Install and smoke are user-reported as passed. The setup also added a host-wide AppArmor profile for rootlesskit; `setup-build-user.sh uninstall` removes it and the user.
-- **Conflict the guide raised 2026-11-04:** the spec says the orchestrator runs over plain SSH in `tmux`, and the user's standing rule is chat panel only, no terminal. Guide recommendation: VS Code Remote-SSH as `airlock-build`, with the laptop kept on and connected. This is untested: that user's firewall refuses loopback ports outside 23000-29999, which can block the VS Code server's random port, so the window pins it with `remote.SSH.serverPickPortsFromRange`. `tmux` over a terminal is the fallback.
+- **Conflict the guide raised 2026-11-04:** the spec says the orchestrator runs over plain SSH in `tmux`, and the user's standing rule is chat panel only, no terminal. Guide recommendation: VS Code Remote-SSH as `airlock-build`, with the laptop kept on and connected. That user's firewall refuses loopback ports outside 23000-29999, so the window pins the VS Code server's port with `remote.SSH.serverPickPortsFromRange`. This worked: the whole build ran from that window's chat panel.
 - **Fallbacks:** a separate small VPS if the user will not risk the current one. Compose plus Gateway if Console will not open.
 
 ## Frontend directive
@@ -87,14 +87,14 @@ Last updated: 2026-11-04 18:41 UTC by the guide seat. The Step 0a pack at `docs/
 | 0a resource-extractor | done | `docs/resources/2026-11-04-flip-the-switch/` at 8efb5b4 | Passed by the guide 2026-11-04. Pushed; no secrets found by pattern scan; kit untouched; Switch deep, Wispr requirements. Weights match live DevTools Academy; WeMakeDevs 0% in fetched text matches the pack's count-up explanation (guide did not render it in Chrome). `submission_mode: none` confirmed live. Deviation accepted: rule prose is paraphrased, numbers are exact | `claude-opus-5-5`, stated; `high` per the kickoff |
 | 0 idea-forge | done | `docs/idea-forge/2026-11-04-invoice-airlock-brief.md` at a463591 | Passed by the guide 2026-11-04. Pushed; all fields present, including feasibility notes; repo renamed; target tracks correct; no secrets found by pattern scan. Spot-checked at tag `switch-v0.31.0`: named files, `require_same_owner`, the refusal text, `API_HOST_PORT`, the modified Commons Clause all exist. Behavior not run. Stale line accepted: "form is still off" | `opus` + `max` per the kickoff; model id not seen by the guide |
 | 1 architect | done | spec, 7 plans, 35-task manifest, `docs/FRONTEND.md`, submission draft, Stack rows at deb2911 | Guide 2026-11-04: pushed; 6 Stage-4 checks re-run by script and clean (DAG, requires, manifest/plan equality, effort, human gates, tier pins); all 12 form fields answered against the live form; no secrets found by pattern scan; setup script read in full; design skill hash matches after normalising line endings. Plans spot-read, not all 8,000 lines; tests not re-run; smoke user-reported. The static page's button said `Run attack` over hardcoded text. Fixed in a233b6d by an architect session: the panel says it is a replay, and task 7.2's test ties each answer to the recorded report. Checks re-run clean by the guide | Ran on VPS as root, user-approved for planning only (spec section 17) |
-| 2 orchestrator | blocked | | Deploy key, clone, skill copy, Claude sign-in as `airlock-build` | set `opus` + `high`, on the VPS as `airlock-build` |
+| 2 orchestrator | done, except 2 human gates | 33 of 35 tasks at 3d523e1; `demo:5.3` and `frontend:7.5` pending | Guide 2026-11-05: manifest shows 33 done and 2 pending; GitHub and the VPS clone match. Recorded `docs/proof/proof-report.md` exits 0, all 9 attacks and 6 controls contained; `--single-owner` exits 1 with no payment. Attack 7's added refusal read and accepted; README discloses its limit. Pattern scan found no secrets. Since the proof run only demo and page tooling changed. Guide did not re-run `./prove.sh` or the task gates. The deploy key can't push workflow files, so the guide pushed `.github/workflows/pages.yml` and the 2 commits after it from the laptop, on the user's go, hashes unchanged. The workflow runs only when started by hand | `opus` + `high`, on the VPS as `airlock-build` |
 | 2.5 demo-studio | blocked | | row 10 | |
 | 3 gate-concierge preflight | pending | | | |
 | 3 gate-concierge closing | pending | | | |
 
 ## Next action
 
-The user runs the setup prompt in a new laptop tab (`sonnet` + `high`): executor copy, SSH host entry, VS Code port range, deploy key, clone, skill copy, stack probes. The user then connects VS Code as `airlock-build`, signs in, and runs a short test prompt. The guide reviews both results, then hands over the orchestrator kickoff (recommended `autonomous`) and the preflight kickoff.
+The user closes the orchestrator chat. The guide then writes a no-terminal walkthrough for `demo:5.3` (model sign-in and money shot); the token never passes through chat. Then Step 2.5: install ffmpeg, re-probe computer use, record under 3 minutes. Then Step 3 closing and `frontend:7.5`, which needs the repo public first.
 
 ## Done by the user
 
@@ -106,7 +106,8 @@ The user runs the setup prompt in a new laptop tab (`sonnet` + `high`): executor
 2. Demo cast decided by the user 2026-11-04: the user plays both the clerk and the controller, on two Switch accounts. The form asks for a real chat with teammates, so the architect, demo script and README must say plainly that one person plays both roles. Check 5 (telling two people apart) still matters.
 3. ffmpeg missing. Blocks 2.5; fix before the demo.
 4. Wispr Flow not installed (C5). Blocks only that side track, but usage should start now.
-5. Before the orchestrator kickoff: hand over the prompt that copies `references/agents/executor-*.md` to `.claude/agents/`.
 7. Task `demo:5.3` uses terminal commands (`claude setup-token`, `ssh -L`). Find a chat-panel path before that gate. VS Code's Ports panel can replace the tunnel; the token must never pass through chat.
 8. At closing: remove both write deploy keys if no longer needed (`github-flipswitch`, and the `airlock-build` key, which can also force-push). Run `setup-build-user.sh uninstall` if the user wants the VPS back as it was.
 6. Before the repo goes public: scrub machine details from the tollgate report and pack (laptop and VPS hostnames, the VPS service name and key path, the browser extension list).
+9. Before the repo goes public: README lines 40 and 64 say attack 3 succeeds under `--single-owner`, but the recorded run also shows attacks 2, 4, 5 and 8 breached and the clean payment failing. Make the README match the report.
+10. Before recording: run `./prove.sh` once more on the final commit. The recorded run predates the demo additions.
