@@ -624,7 +624,7 @@
       "commit": "feat: add the synthetic PDF invoices",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "agents:2.5",
