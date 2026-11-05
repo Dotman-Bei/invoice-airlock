@@ -197,7 +197,7 @@
       "commit": "feat: add the fixed chat copy and decision lines",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "core:1.5",
