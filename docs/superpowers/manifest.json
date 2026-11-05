@@ -929,7 +929,7 @@
       "commit": "feat: add the Compose overlay and stack library",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "stack:3.3",
