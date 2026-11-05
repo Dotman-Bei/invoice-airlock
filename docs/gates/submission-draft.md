@@ -30,7 +30,7 @@ TBD-post-build:public-repo-url
 
 ### Demo video (required): under 3 minutes, on YouTube or Loom, public or unlisted, showing the agent working in a real chat with your teammates
 
-TBD-post-build:demo-video-url
+https://youtu.be/e0wOvpWHt5A
 
 ### Live demo or deployment (optional): leave blank if your project doesn't have a live demo
 

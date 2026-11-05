@@ -148,13 +148,13 @@ Residuals carried to the watch: the voice has not been heard by this seat, only 
 
 | field | value |
 |---|---|
-| Upload target + account | unlisted YouTube, uploaded manually by the user. Account name given by the user at upload |
-| Title | Invoice Airlock: an AP desk on Switch that stays safe when its agent is hijacked |
+| Upload target + account | YouTube, uploaded manually by the user. Channel shown logged-out: Emmanuel Bamigboye |
+| Title | Approved: Invoice Airlock: an AP desk on Switch that stays safe when its agent is hijacked. As published by the user: invoice airlock demo |
 | Description | Invoice Airlock is an accounts-payable desk on Switch for a small finance team, built on the assumption that the agent reading vendor invoices has already been hijacked. Outside content stays in a room with no reach, only validated typed fields cross to the room that can pay, and only the controller can release money. In this demo one person plays both the clerk and the controller, on two accounts. The hijack is scripted on purpose, because the room is under test, not the model. The courier's removal of treasury is delayed on purpose so each beat can be seen. Amounts are illustrative and the bank is a mock. The proof shown is a recorded run, not a live one. Repo: https://github.com/Dotman-Bei/invoice-airlock. Built for the Flip the Switch Hackathon, Track 01 Best Business Workflow. Music: none, so no attribution is needed |
 | Tags | invoice airlock, switch, ai agents, agent security, prompt injection, accounts payable, mattermost, flip the switch hackathon, wemakedevs, devtools academy |
-| Visibility | unlisted |
-| URL | TBD |
-| Verified logged-out | TBD |
+| Visibility | Planned: unlisted. Observed logged-out on 2026-11-05: not unlisted and not private (the watch page reported `isUnlisted` false), so it looked public. The form accepts either, and the user may change it in Studio without changing the link |
+| URL | https://youtu.be/e0wOvpWHt5A |
+| Verified logged-out | 2026-11-05 (oEmbed 200, playable, 161 s, not private) |
 | Resolves | submission-draft demo video URL |
 
 ## 8 — Status ledger
@@ -169,3 +169,4 @@ Residuals carried to the watch: the voice has not been heard by this seat, only 
 | 2026-11-05 | recorded (5/5 footage scenes S3-S7 from desk run 2; cards S1, S2, S8-S11 render at assembly. Desk run 1 stopped at its first beat, see the superseded-edit row) | demo-studio |
 | 2026-11-05 | assembled (2 renders: 1080p h264 30 fps, 2:41, audio-first from Kokoro, -14 LUFS; `docs/demo/video/out/invoice-airlock-demo.mp4`, git-ignored) | demo-studio |
 | 2026-11-05 | QC passed [residuals: voice not heard by this seat, phonemes checked only; about 1.5 s gaps between scenes; disclosed static-frame holds in S3-S7; true peak 0.07 dB over target; outro QR resolves only once the repo is public] | demo-studio |
+| 2026-11-05 | uploaded (https://youtu.be/e0wOvpWHt5A; uploaded manually by the user, then verified logged-out by demo-studio and the guide seat. No separate "watched" confirmation was given, so none is recorded. Evidence in `docs/gates/2026-11-05-gate-ledger.md`) | the user |
