@@ -1,0 +1,4 @@
+node_modules/
+.run/
+proof-output/
+.taste-skill/
