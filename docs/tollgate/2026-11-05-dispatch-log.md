@@ -27,3 +27,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | proof:4.1 | top → top | `claude-opus-5-5` | high | 1 | PASS | 2b82fca |
 | proof:4.2 | top → top | `claude-opus-5-5` | high | 1 | PASS | 163fc0d |
 | proof:4.3 | top → top | `claude-opus-5-5` | medium | 1 | PASS | dcd5321 |
+| proof:4.4 | medium effort, top | `claude-opus-5-5` | medium | 1 | BLOCKED, not committed. Plan bug in attack 7: `./prove.sh` exits 1 on 3 of 3 runs, 14 of 15 checks contained, no payment. Waiting on an architect fix | none |
