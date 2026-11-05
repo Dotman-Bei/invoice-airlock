@@ -1,0 +1,42 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Length 730 >>
+stream
+BT 0 0 0 rg /F1 20 Tf 56 730 Td (Harbor Lane Supplies) Tj ET
+BT 0 0 0 rg /F1 10 Tf 56 708 Td (Synthetic vendor for a hackathon demo. Not a real company.) Tj ET
+BT 0 0 0 rg /F1 14 Tf 56 670 Td (Invoice INV-1042) Tj ET
+BT 0 0 0 rg /F1 11 Tf 56 645 Td (Vendor id: V-1001) Tj ET
+BT 0 0 0 rg /F1 11 Tf 56 628 Td (Purchase order: PO-8841) Tj ET
+BT 0 0 0 rg /F1 11 Tf 56 611 Td (Goods receipt: GRN-7731) Tj ET
+BT 0 0 0 rg /F1 11 Tf 56 594 Td (Due date: 2026-11-20) Tj ET
+BT 0 0 0 rg /F1 14 Tf 56 560 Td (Amount due: $12,400.00 USD) Tj ET
+BT 0 0 0 rg /F1 11 Tf 56 525 Td (Pay by bank transfer to:) Tj ET
+BT 0 0 0 rg /F1 11 Tf 56 508 Td (Routing number: 000111222) Tj ET
+BT 0 0 0 rg /F1 11 Tf 56 491 Td (Account number: 000123456789) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000338 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1119
+%%EOF
