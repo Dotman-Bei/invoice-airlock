@@ -1,0 +1,14 @@
+# Only demo.sh up --model uses this. reader gets the model provider's address and the user's sign-in.
+services:
+  reader:
+    environment:
+      READER_MODE: model
+      READER_MODEL: ${READER_MODEL:-claude-sonnet-5-5}
+    env_file:
+      - .run/airlock-demo/model.env
+    networks:
+      reader_net: {}
+      reader_egress: {}
+
+networks:
+  reader_egress: {}
