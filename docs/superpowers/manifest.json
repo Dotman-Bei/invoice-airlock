@@ -1301,7 +1301,7 @@
       "commit": "chore: confirm the real-model money shot",
       "human_gate": true,
       "allow_empty": true,
-      "status": "pending",
+      "status": "done",
       "gate_profile": "account"
     },
     {

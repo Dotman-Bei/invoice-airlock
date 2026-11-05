@@ -39,3 +39,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | frontend:7.2 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS | 12571d7 |
 | frontend:7.3 | standard → standard | `claude-sonnet-5-5` | high | 1 | RESULT: 0 FAIL, 1 WARN, the no-footage warning FRONTEND.md accepts. Screenshots read by the orchestrator | 1c10b8d |
 | frontend:7.4 | fast → fast | `claude-haiku-5-5` | low | 1 | PASS | 61a3c6b |
+| demo:5.3 | human gate, run by the user | `claude-sonnet-5-5` for `reader` | n/a | 1 | PASS. MODEL RUNNING, and a real-model INV-1042 cleared and paid, ledger balance $237,600.00, checked by the guide. The guide started the desk and did not open the sign-in file except for shape checks | see commit log |
