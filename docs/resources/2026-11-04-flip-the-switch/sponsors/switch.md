@@ -230,7 +230,7 @@ To add a messaging app Switch does not support. Subclass `CollaborationAdapter`.
 - **Agent stalled:** a permission request may be waiting in a thread.
 - **Session did not start:** usually a confirmation waiting in the provider's own CLI, such as folder trust.
 - **Agent answers only you:** check the addressing rules and the linked messaging account. Refusal looks like a bug and is not one.
-- **Every room stops responding:** usually a network change such as a VPN reconnect. Console recovers within about a minute, or restart it. This machine has a VPN extension installed, for awareness.
+- **Every room stops responding:** usually a network change such as a VPN reconnect. Console recovers within about a minute, or restart it.
 - **Local server not back after reboot:** expected. Start it again.
 
 ## Known Windows issues
