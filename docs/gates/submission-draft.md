@@ -26,7 +26,7 @@ The invoice attack is a scenario, the hijack is scripted on purpose, the vendors
 
 ### GitHub Repository or contribution (required): public repository, with a README that explains how to set it up
 
-TBD-post-build:public-repo-url
+https://github.com/Dotman-Bei/invoice-airlock
 
 ### Demo video (required): under 3 minutes, on YouTube or Loom, public or unlisted, showing the agent working in a real chat with your teammates
 
