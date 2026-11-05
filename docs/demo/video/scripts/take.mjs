@@ -13,7 +13,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { clock, startPane, stopPane, encodePane, LAUNCH_ARGS } from './lib/screencast.mjs';
-import { MM, LEDGER, PANES, health } from './desk.mjs';
+import { MM, LEDGER, PANES, LEDGER_PANE, health } from './desk.mjs';
 
 const arg = (k) => { const i = process.argv.indexOf(`--${k}`); return i < 0 ? null : (process.argv[i + 1]?.startsWith('--') ? true : process.argv[i + 1] ?? true); };
 const run = arg('run') ?? '1';
@@ -63,8 +63,12 @@ for (const role of ['clerk', 'controller']) {
   team ??= new URL(pages[role].url()).pathname.split('/')[1];
   await pages[role].goto(`${MM}/${team}/channels/${p.channel}`, { waitUntil: 'domcontentloaded' });
   await pages[role].locator('#post_textbox').waitFor({ timeout: 30000 });
+  // Dismiss Mattermost's "Preview Mode: Email notifications have not been configured" banner so it is
+  // not in frame. UI-only, posts nothing.
+  const close = pages[role].locator('a.announcement-bar__close');
+  if (await close.count()) { await close.first().click(); await sleep(600); }
 }
-ctxs.ledger = await browser.newContext({ viewport: { width: 360, height: 796 } });
+ctxs.ledger = await browser.newContext({ viewport: { width: LEDGER_PANE.w, height: LEDGER_PANE.h } });
 pages.ledger = await ctxs.ledger.newPage();
 await pages.ledger.goto(`${LEDGER}/`, { waitUntil: 'domcontentloaded' });
 await sleep(1500);
@@ -80,7 +84,7 @@ if (!(await pages.clerk.locator('input[type="file"]').count())) fail('clerk pane
 
 const rec = {};
 for (const role of Object.keys(pages)) {
-  const dims = role === 'ledger' ? { width: 360, height: 796 } : { width: PANES[role].w, height: PANES[role].h };
+  const dims = role === 'ledger' ? { width: LEDGER_PANE.w, height: LEDGER_PANE.h } : { width: PANES[role].w, height: PANES[role].h };
   rec[role] = await startPane(pages[role], path.join(outDir, role), dims);
 }
 T0 = clock();
@@ -154,6 +158,11 @@ try {
     try { const r = encodePane(rec[role], path.join(outDir, `${role}.mp4`), { t0: T0, t1: T1 }); console.log(`${role}: ${r.frames} frames -> ${role}.mp4`); }
     catch (e) { console.log(`${role}: encode failed: ${e.message}`); process.exitCode = 1; }
   }
-  writeFileSync(path.join(outDir, 'beats.json'), JSON.stringify({ run, dry, team, duration: +(T1 - T0).toFixed(2), beats }, null, 2));
+  writeFileSync(path.join(outDir, 'beats.json'), JSON.stringify({
+    run, dry, team, duration: +(T1 - T0).toFixed(2),
+    panes: { clerk: PANES.clerk, controller: PANES.controller, ledger: LEDGER_PANE },
+    note: 'beat t = seconds from T0 at which the gate saw it (never earlier than it appeared)',
+    beats,
+  }, null, 2));
   console.log(`beats.json written; stopped at ${(T1 - T0).toFixed(1)} s; exit ${process.exitCode ?? 0}`);
 }

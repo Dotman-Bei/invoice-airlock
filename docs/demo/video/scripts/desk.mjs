@@ -16,6 +16,10 @@ export const PANES = {
   clerk: { w: 780, h: 796, channel: 'ap-intake' },
   controller: { w: 780, h: 796, channel: 'ap-release' },
 };
+// The ledger page's table needs about 504 CSS px before its columns stop clipping, but its slot in the
+// approved layout is 360 px wide. So it is captured at 540 px and displayed scaled to 360 px (x0.667).
+// 1194 = 796 / 0.667, so the scaled capture fills the slot's full height. Probed on the live desk.
+export const LEDGER_PANE = { w: 540, h: 1194, slotW: 360, slotH: 796 };
 const scratch = process.env.AIRLOCK_SCRATCH;
 if (!scratch) throw new Error('set AIRLOCK_SCRATCH to a folder outside the repo');
 const stateFile = (role) => path.join(scratch, `state-${role}.json`);
@@ -53,6 +57,33 @@ async function login() {
   await browser.close();
 }
 
+// The user types the credentials themselves in a visible window, one role at a time, so this script
+// never sees a password. Only the resulting session (cookies) is saved, in the scratch folder.
+async function signin() {
+  const browser = await chromium.launch({ headless: false });
+  for (const role of Object.keys(PANES)) {
+    const ctx = await browser.newContext({ viewport: { width: 900, height: 800 } });
+    await ctx.addInitScript((r) => {
+      window.addEventListener('DOMContentLoaded', () => {
+        const d = document.createElement('div');
+        d.textContent = `SIGN IN AS: ${r.toUpperCase()}`;
+        d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#f7dd47;color:#000;font:700 22px sans-serif;text-align:center;padding:8px';
+        document.documentElement.appendChild(d);
+      });
+    }, role);
+    const page = await ctx.newPage();
+    await page.goto(`${MM}/login`, { waitUntil: 'domcontentloaded' });
+    console.log(`${role}: window is open, waiting for you to sign in (up to 10 min)`);
+    await page.waitForURL((u) => !u.pathname.startsWith('/login'), { timeout: 600000 });
+    await page.waitForURL(/\/channels\//, { timeout: 90000 }).catch(() => {});
+    await page.waitForTimeout(1500);
+    await ctx.storageState({ path: stateFile(role) });
+    console.log(`${role}: signed in, session saved (landed on ${new URL(page.url()).pathname})`);
+    await ctx.close();
+  }
+  await browser.close();
+}
+
 async function layout() {
   const browser = await chromium.launch({ headless: true, args: LAUNCH_ARGS });
   const report = { health: await health(), panes: {} };
@@ -79,7 +110,7 @@ async function layout() {
     await page.screenshot({ path: path.join(scratch, `layout-${role}.png`) });
     await ctx.close();
   }
-  const lctx = await browser.newContext({ viewport: { width: 360, height: 796 } });
+  const lctx = await browser.newContext({ viewport: { width: LEDGER_PANE.w, height: LEDGER_PANE.h } });
   const lpage = await lctx.newPage();
   await lpage.goto(`${LEDGER}/`, { waitUntil: 'domcontentloaded' });
   await lpage.waitForTimeout(1500);
@@ -94,6 +125,7 @@ const cmd = process.argv[2];
 if (import.meta.url === new URL(`file:///${process.argv[1].replace(/\\/g, '/')}`).href) {
   if (cmd === 'health') console.log(JSON.stringify(await health(), null, 2));
   else if (cmd === 'login') await login();
+  else if (cmd === 'signin') await signin();
   else if (cmd === 'layout') await layout();
   else console.log('usage: node scripts/desk.mjs health|login|layout');
 }
