@@ -135,7 +135,7 @@
       "commit": "feat: add the vendor master and the packet checks",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "core:1.4",
