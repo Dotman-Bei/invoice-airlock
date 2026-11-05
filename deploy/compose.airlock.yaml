@@ -1,0 +1,137 @@
+# Laid over Switch's published standalone Compose file, which lib/stack.sh downloads at a pinned tag.
+x-agent: &agent
+  image: airlock-agents:local
+  build:
+    context: .
+    target: agents
+  restart: on-failure
+
+x-switch-env: &switch-env
+  SWITCH_URL: http://switch:8000
+
+services:
+  mattermost:
+    environment:
+      # As shipped, refusals hide behind "1 reply". This puts them inline, on screen.
+      MM_SERVICESETTINGS_COLLAPSEDTHREADS: disabled
+
+  switch:
+    networks:
+      default: {}
+      reader_net: {}
+
+  provision:
+    <<: *agent
+    command: ["node", "--disable-warning=ExperimentalWarning", "src/provision/main.ts"]
+    restart: "no"
+    environment:
+      <<: *switch-env
+      MATTERMOST_URL: http://mattermost:8065
+      GATEWAY_ADMIN_EMAIL: ${GATEWAY_ADMIN_EMAIL}
+      GATEWAY_ADMIN_PASSWORD: ${GATEWAY_ADMIN_PASSWORD}
+      MATTERMOST_ADMIN_USER: ${MATTERMOST_ADMIN_USER}
+      MATTERMOST_ADMIN_PASSWORD: ${MATTERMOST_ADMIN_PASSWORD}
+      MATTERMOST_TEAM_NAME: ${MATTERMOST_TEAM_NAME}
+      AIRLOCK_OWNERS: ${AIRLOCK_OWNERS:-two}
+    volumes:
+      - state_reader:/state/reader
+      - state_courier:/state/courier
+      - state_treasury:/state/treasury
+      - state_runner:/state/runner
+    depends_on:
+      - switch
+      - mattermost
+
+  courier:
+    <<: *agent
+    command: ["node", "--disable-warning=ExperimentalWarning", "src/courier/main.ts"]
+    environment:
+      <<: *switch-env
+      EJECT_GRACE_MS: ${EJECT_GRACE_MS:-10000}
+    volumes:
+      - state_courier:/state
+    depends_on:
+      provision:
+        condition: service_completed_successfully
+
+  treasury:
+    <<: *agent
+    command: ["node", "--disable-warning=ExperimentalWarning", "src/treasury/main.ts"]
+    environment:
+      <<: *switch-env
+      BANK_URL: http://mock-bank:9000
+      BANK_TOKEN: ${BANK_TOKEN}
+    networks:
+      default: {}
+      vault: {}
+    volumes:
+      - state_treasury:/state
+    depends_on:
+      provision:
+        condition: service_completed_successfully
+      mock-bank:
+        condition: service_started
+
+  mock-bank:
+    <<: *agent
+    command: ["node", "--disable-warning=ExperimentalWarning", "src/bank/main.ts"]
+    environment:
+      BANK_TOKEN: ${BANK_TOKEN}
+    networks:
+      vault: {}
+    ports:
+      - "${SWITCH_BIND_ADDR:-127.0.0.1}:${AIRLOCK_LEDGER_PORT:-28090}:9000"
+
+  reader:
+    image: ${READER_IMAGE:-airlock-reader:local}
+    build:
+      context: .
+      target: ${READER_TARGET:-reader}
+    restart: on-failure
+    command: ["node", "--disable-warning=ExperimentalWarning", "src/reader/main.ts"]
+    environment:
+      <<: *switch-env
+      READER_MODE: ${READER_MODE:-fixture}
+      HIJACK_SET: ${HIJACK_SET:-full}
+      HIJACK_PACE_MS: ${HIJACK_PACE_MS:-0}
+    # Only the Switch API is reachable from here: no bank, no database, no Mattermost.
+    networks:
+      reader_net: {}
+    volumes:
+      - state_reader:/state
+      - proof_out:/out
+    depends_on:
+      provision:
+        condition: service_completed_successfully
+
+  proof-runner:
+    <<: *agent
+    profiles: ["proof"]
+    command: ["node", "--disable-warning=ExperimentalWarning", "src/proof/main.ts"]
+    restart: "no"
+    environment:
+      <<: *switch-env
+      MATTERMOST_URL: http://mattermost:8065
+      BANK_URL: http://mock-bank:9000
+      EJECT_GRACE_MS: ${EJECT_GRACE_MS:-10000}
+    networks:
+      default: {}
+      vault: {}
+    volumes:
+      - state_runner:/state:ro
+      - proof_out:/out:ro
+    depends_on:
+      provision:
+        condition: service_completed_successfully
+
+networks:
+  reader_net:
+    internal: true
+  vault: {}
+
+volumes:
+  state_reader:
+  state_courier:
+  state_treasury:
+  state_runner:
+  proof_out:
