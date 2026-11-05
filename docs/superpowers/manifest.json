@@ -879,7 +879,7 @@
       "commit": "feat: provision the people, agents and rooms",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "stack:3.2",

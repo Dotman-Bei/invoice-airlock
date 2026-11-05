@@ -21,3 +21,4 @@ One row per task that landed, written by the orchestrator. "Requested" is the ma
 | agents:2.6 | top → top | `claude-opus-5-5` | medium | 1 | PASS | 7a4efc2 |
 | agents:2.7 | top → top | `claude-opus-5-5` | high | 1 | PASS | b6fbcc4 |
 | agents:2.8 | standard → standard | `claude-sonnet-5-5` | high | 1 | PASS. Executor reports a safety classifier stopped its first write of the file and that it retried the same content unprompted. File is byte-identical to the plan | b1ea40a |
+| stack:3.1 | top → top | `claude-opus-5-5` | high | 1 | PASS | c7310b6 |
