@@ -158,3 +158,4 @@ Extra criteria for this campaign. Total duration: the ±10% rule applies below t
 | date | event | by |
 |---|---|---|
 | 2026-11-05 | scripted | demo-studio |
+| 2026-11-05 | approved (whole call sheet: scenes, pre-flight, narration, assembly, publish copy, and the three deviations: concurrent three-pane capture, recorded-run proof cards, Remotion code under docs/demo/video/) | the user |
