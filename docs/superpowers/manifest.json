@@ -1094,7 +1094,7 @@
       "commit": "feat: add the proof runner",
       "human_gate": false,
       "allow_empty": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "proof:4.3",
