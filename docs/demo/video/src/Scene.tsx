@@ -2,10 +2,10 @@ import React from 'react';
 import { loadFont } from '@remotion/google-fonts/HankenGrotesk';
 import data from './generated/data.json';
 
-const { fontFamily } = loadFont('normal', { weights: ['400', '500'], subsets: ['latin'] });
+export const { fontFamily } = loadFont('normal', { weights: ['400', '500'], subsets: ['latin'] });
 
 // Palette from docs/FRONTEND.md: yellow = the room outside, black = the door, ultramarine = the room that pays.
-const C = {
+export const C = {
   ultra: '#1423b8',
   black: '#000000',
   yellow: '#f7dd47',
@@ -15,10 +15,10 @@ const C = {
   ink: '#0a0a0a',
 };
 
-const STAGE_H = 900; // stage above the caption band, which is 180 px: 900 + 180 = 1080
-const RAIL_H = 52; // label rail at the top and the statement rail at the bottom of the three-up stage
+export const STAGE_H = 900; // stage above the caption band, which is 180 px: 900 + 180 = 1080
+export const RAIL_H = 52; // label rail at the top and the statement rail at the bottom of the three-up stage
 
-const display = (size: number): React.CSSProperties => ({
+export const display = (size: number): React.CSSProperties => ({
   fontFamily,
   fontWeight: 500,
   fontSize: size,
@@ -26,7 +26,7 @@ const display = (size: number): React.CSSProperties => ({
   lineHeight: 0.95,
   margin: 0,
 });
-const body = (size: number): React.CSSProperties => ({ fontFamily, fontWeight: 400, fontSize: size, lineHeight: 1.2, margin: 0 });
+export const body = (size: number): React.CSSProperties => ({ fontFamily, fontWeight: 400, fontSize: size, lineHeight: 1.2, margin: 0 });
 
 // Storyboard captions: the real narration text, first words only, one word highlighted as the
 // word-timed highlight will look. The real build draws these from the Kokoro word timings.
@@ -50,16 +50,16 @@ const CaptionBand: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-const Stage: React.FC<{ bg: string; children: React.ReactNode }> = ({ bg, children }) => (
+export const Stage: React.FC<{ bg: string; children: React.ReactNode }> = ({ bg, children }) => (
   <div style={{ position: 'absolute', top: 0, left: 0, width: 1920, height: STAGE_H, background: bg, overflow: 'hidden' }}>{children}</div>
 );
 
-const Chip: React.FC<{ bg: string; ink: string; children: React.ReactNode }> = ({ bg, ink, children }) => (
+export const Chip: React.FC<{ bg: string; ink: string; children: React.ReactNode }> = ({ bg, ink, children }) => (
   <span style={{ ...body(24), fontWeight: 500, background: bg, color: ink, padding: '6px 16px', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>{children}</span>
 );
 
 // ---------- cards ----------
-const Title: React.FC = () => (
+export const Title: React.FC = () => (
   <Stage bg={C.ultra}>
     <div style={{ position: 'absolute', left: 120, top: 250 }}>
       <h1 style={{ ...display(220), color: '#fff' }}>Invoice<br />Airlock</h1>
@@ -70,7 +70,7 @@ const Title: React.FC = () => (
   </Stage>
 );
 
-const Problem: React.FC = () => (
+export const Problem: React.FC = () => (
   <Stage bg={C.black}>
     <div style={{ position: 'absolute', left: 120, top: 200, width: 1500 }}>
       <h1 style={{ ...display(112), color: C.yellow }}>AI agents read invoices next to the step that moves money.</h1>
@@ -79,7 +79,7 @@ const Problem: React.FC = () => (
   </Stage>
 );
 
-const Close: React.FC = () => (
+export const Close: React.FC = () => (
   <Stage bg={C.green}>
     <div style={{ position: 'absolute', left: 120, top: 170, width: 1600 }}>
       <h1 style={{ ...display(128), color: C.ink }}>The agent was hijacked.</h1>
@@ -93,7 +93,7 @@ const Close: React.FC = () => (
   </Stage>
 );
 
-const Outro: React.FC = () => (
+export const Outro: React.FC = () => (
   <Stage bg={C.black}>
     <div style={{ position: 'absolute', left: 120, top: 230 }}>
       <h1 style={{ ...display(150), color: '#fff' }}>Invoice Airlock</h1>
@@ -153,7 +153,7 @@ const ThreeUp: React.FC<{ focus: Focus; statement?: string; note?: string }> = (
 
 // ---------- proof cards ----------
 type Report = (typeof data)['proof'];
-const ProofCard: React.FC<{ report: Report; file: string; footer: string; singleOwner?: boolean }> = ({ report, file, footer, singleOwner }) => {
+export const ProofCard: React.FC<{ report: Report; file: string; footer: string; singleOwner?: boolean }> = ({ report, file, footer, singleOwner }) => {
   const date = report.started ? report.started.slice(0, 10) : '';
   return (
     <Stage bg={C.paper}>
@@ -182,6 +182,28 @@ const ProofCard: React.FC<{ report: Report; file: string; footer: string; single
       </div>
     </Stage>
   );
+};
+
+// The stage of a card scene (no caption band), shared by the stills and the final composition.
+export const CardStage: React.FC<{ id: string }> = ({ id }) => {
+  switch (id) {
+    case 'S1': return <Title />;
+    case 'S2': return <Problem />;
+    case 'S8':
+      return <ProofCard report={data.proof} file="docs/proof/proof-report.md" footer={`Owners: ${data.proof.owners} · Exit code ${data.proof.exit}`} />;
+    case 'S9':
+      return (
+        <ProofCard
+          report={data.single}
+          singleOwner
+          file="docs/proof/single-owner-report.md"
+          footer={`Owners: ${data.single.owners} · Exit code ${data.single.exit} · Attack 7 breached in 1 of 3 runs, contained in 2 · No money moved in the hostile run`}
+        />
+      );
+    case 'S10': return <Close />;
+    case 'S11': return <Outro />;
+    default: throw new Error(`${id} is not a card scene`);
+  }
 };
 
 export const Scene: React.FC<{ id: string }> = ({ id }) => {

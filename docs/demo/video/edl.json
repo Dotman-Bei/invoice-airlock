@@ -1,0 +1,46 @@
+{
+  "_comment": "Edit decision list for the final cut. Times are seconds into desk run 2's take (captures/run-2). Event times were read from the recorded panes' picture changes: attach 7.1, drop sent 11.2, hijack line 14.4, treasury joins 18.4, order 21.3, refusal 22.1, courier hold 28.1, removal 34.0, alert 34.7, model read done 52.4, cleared 53.1, pay sent 57.4, paid 59.7, ledger moved 59.8. A hold is a frame that is genuinely static on screen at that moment; no speed ramps, nothing retimed. Waits cut from live footage are marked on screen by an elapsed-time chip.",
+  "run": 2,
+  "fps": 30,
+  "leadS": 0.3,
+  "tailS": 0.5,
+  "scenes": {
+    "S3": {
+      "layouts": [{ "atS": 0, "layout": "all" }],
+      "pieces": [{ "live": [0.0, 6.9] }, { "hold": 6.9, "fill": true }],
+      "statements": [{ "text": "One person, two accounts · Mock bank, illustrative amounts" }],
+      "spots": [
+        { "role": "clerk", "sentenceStartingWith": "Left" },
+        { "role": "controller", "sentenceStartingWith": "Middle" },
+        { "role": "ledger", "sentenceStartingWith": "Right" }
+      ]
+    },
+    "S4": {
+      "layouts": [{ "atS": 0, "layout": "all" }],
+      "pieces": [
+        { "live": [6.8, 21.0], "includes": ["drop-2091", "hijack-line"], "excludes": ["order", "refusal"] },
+        { "hold": 21.0, "fill": true }
+      ],
+      "statements": [{ "text": "Hijack scripted on purpose" }]
+    },
+    "S5": {
+      "layouts": [{ "atS": 0, "layout": "clerk" }],
+      "pieces": [{ "live": [21.0, 26.0], "includes": ["order", "refusal"], "excludes": ["held"] }, { "hold": 26.0, "fill": true, "drift": true }]
+    },
+    "S6": {
+      "layouts": [{ "atS": 0, "layout": "controller" }, { "atS": 7.6, "layout": "all" }, { "atS": 15.0, "layout": "ledger" }],
+      "pieces": [{ "live": [26.0, 35.2], "includes": ["held", "removed", "alert"] }, { "hold": 35.2, "fill": true }],
+      "statements": [{ "text": "Removal delayed on purpose", "fromS": 6.0, "toS": 15.0 }]
+    },
+    "S7": {
+      "layouts": [{ "atS": 0, "layout": "all" }, { "atS": 19.4, "layout": "ledger" }],
+      "pieces": [
+        { "live": [38.5, 44.3], "includes": [], "excludes": ["cleared"] },
+        { "live": [52.3, 53.8], "includes": ["cleared"], "excludes": ["pay-command"] },
+        { "hold": 53.8, "fill": true },
+        { "live": [54.9, 62.85], "includes": ["pay-command", "paid", "ledger-moved"] }
+      ],
+      "chips": [{ "text": "+8 s · model reading", "atPiece": 1, "durS": 1.7 }]
+    }
+  }
+}
