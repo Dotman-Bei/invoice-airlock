@@ -94,7 +94,7 @@ Last updated: 2026-11-05 by the guide seat. The Step 0a pack at `docs/resources/
 
 ## Next action
 
-The user closes the orchestrator chat. The guide then writes a no-terminal walkthrough for `demo:5.3` (model sign-in and money shot); the token never passes through chat. Then Step 2.5: install ffmpeg, re-probe computer use, record under 3 minutes. Then Step 3 closing and `frontend:7.5`, which needs the repo public first.
+`demo:5.3`: the guide pre-created an empty `.run/airlock-demo/model.env` (mode 600). The user runs `claude setup-token` once in the VS Code terminal panel (their one agreed-on exception is pending their go) and pastes the token into that file in the editor; it never passes through chat. The guide starts the desk without opening the file, and the user runs the money shot. Then Step 2.5: install ffmpeg, re-probe computer use, record under 3 minutes. Then Step 3 closing and `frontend:7.5`, which needs the repo public first.
 
 ## Done by the user
 
@@ -109,5 +109,6 @@ The user closes the orchestrator chat. The guide then writes a no-terminal walkt
 7. Task `demo:5.3` uses terminal commands (`claude setup-token`, `ssh -L`). Find a chat-panel path before that gate. VS Code's Ports panel can replace the tunnel; the token must never pass through chat.
 8. At closing: remove both write deploy keys if no longer needed (`github-flipswitch`, and the `airlock-build` key, which can also force-push). Run `setup-build-user.sh uninstall` if the user wants the VPS back as it was.
 6. Before the repo goes public: scrub machine details from the tollgate report and pack (laptop and VPS hostnames, the VPS service name and key path, the browser extension list).
-9. Before the repo goes public: README lines 40 and 64 say attack 3 succeeds under `--single-owner`, but the recorded run also shows attacks 2, 4, 5 and 8 breached and the clean payment failing. Make the README match the report.
-10. Before recording: run `./prove.sh` once more on the final commit. The recorded run predates the demo additions.
+10. Final proof run done at 3665b52. The guide then repeated it on 2026-11-05: `./prove.sh` exited 0 on 4 of 4 runs, every attack and control contained. Attack 7's refusal varies between `not_permitted` and `not_in_room`, both accepted.
+11. Before the demo and the public flip: attack 7 under `--single-owner` varies. It was breached in 1 of 3 runs (the courier's notice missed its 30-second wait) and contained in 2. README lines 40 and 64 and beat sheet line 40 state it as always succeeding. Say attacks 2, 3, 4, 5 and 8 succeed, and attack 7 sometimes does. Carry this in the demo-studio and closing kickoffs. Cause of the missed notice not investigated; single-owner control only. README line 132's "usually" for `not_in_room` is 2 of 4 in the guide's runs, so soften it too.
+12. At closing: delete `.run/airlock-demo/model.env` on the VPS and revoke the long-lived `reader` token. After the token exists, no agent sessions run as `airlock-build`.
